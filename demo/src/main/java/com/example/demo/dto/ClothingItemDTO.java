@@ -1,36 +1,28 @@
-package com.example.demo.model;
+package com.example.demo.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
+public class ClothingItemDTO {
 
-@Entity
-@Table(name = "clothing_items")
-public class ClothingItem {
-
-    // Attributes
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String title;
-
     private String description;
-
     private String size;
-
     private String brand;
-
     private String condition;
-
-    @Column(nullable = false)
     private Double price;
+    private Long userId;
 
-    // Relationships
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
-    private User user;
+    // Constructor
+    public ClothingItemDTO(Long id, String title, String description, String size, String brand,
+                           String condition, Double price, Long userId) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.size = size;
+        this.brand = brand;
+        this.condition = condition;
+        this.price = price;
+        this.userId = userId;
+    }
 
     // Getters and Setters
     public Long getId() {
@@ -89,11 +81,11 @@ public class ClothingItem {
         this.price = price;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
