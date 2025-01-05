@@ -2,6 +2,9 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "clothing_items")
@@ -12,18 +15,20 @@ public class ClothingItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Title is required")
+    @Size(max = 100, message = "Title must not exceed 100 characters")
     private String title;
 
     private String description;
 
+    @NotBlank(message = "Size is required")
     private String size;
 
     private String brand;
 
     private String condition;
 
-    @Column(nullable = false)
+    @NotNull(message = "Price is required")
     private Double price;
 
     // Relationships
