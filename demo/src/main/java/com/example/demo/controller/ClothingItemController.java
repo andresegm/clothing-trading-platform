@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.ClothingItemDTO;
 import com.example.demo.model.ClothingItem;
 import com.example.demo.service.ClothingItemService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class ClothingItemController {
     private ClothingItemService clothingItemService;
 
     @PostMapping
-    public ResponseEntity<ClothingItemDTO> addClothingItem(@RequestBody ClothingItem clothingItem) {
+    public ResponseEntity<ClothingItemDTO> addClothingItem(@Valid @RequestBody ClothingItem clothingItem) {
         ClothingItem savedItem = clothingItemService.saveClothingItem(clothingItem);
         ClothingItemDTO dto = new ClothingItemDTO(
                 savedItem.getId(),
