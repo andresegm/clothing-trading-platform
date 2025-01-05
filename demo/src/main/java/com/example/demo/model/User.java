@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class User {
 
     // Relationships
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ClothingItem> clothingItems = new ArrayList<>();
 
     @OneToMany(mappedBy = "initiator", cascade = CascadeType.ALL, orphanRemoval = true)
