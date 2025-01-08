@@ -1,12 +1,13 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "trades")
 public class Trade {
 
-    // Attributes
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,20 +15,22 @@ public class Trade {
     @Column(nullable = false)
     private String status;
 
-    // Relationships
-    @ManyToOne
-    @JoinColumn(name = "item_id", nullable = false)
-    private ClothingItem item;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "initiator_id", nullable = false)
+    @JsonIgnoreProperties("initiatedTrades")
     private User initiator;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "receiver_id", nullable = false)
+    @JsonIgnoreProperties("receivedTrades")
     private User receiver;
 
-    // Getters and Setters
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_id", nullable = false)
+    @JsonIgnoreProperties("item")
+    private ClothingItem item;
+
+// Getters and Setters
     public Long getId() {
         return id;
     }

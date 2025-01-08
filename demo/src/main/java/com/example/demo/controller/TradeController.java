@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.TradeDTO;
 import com.example.demo.model.Trade;
 import com.example.demo.service.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,24 +16,28 @@ public class TradeController {
     @Autowired
     private TradeService tradeService;
 
-    @PostMapping
-    public ResponseEntity<Trade> addTrade(@RequestBody Trade trade) {
-        return ResponseEntity.ok(tradeService.saveTrade(trade));
-    }
-
     @GetMapping
-    public ResponseEntity<List<Trade>> getAllTrades() {
-        return ResponseEntity.ok(tradeService.getAllTrades());
+    public ResponseEntity<List<TradeDTO>> getAllTrades() {
+        List<TradeDTO> trades = tradeService.getAllTrades();
+        return ResponseEntity.ok(trades);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Trade> getTradeById(@PathVariable Long id) {
-        return ResponseEntity.ok(tradeService.getTradeById(id));
+    public ResponseEntity<TradeDTO> getTradeById(@PathVariable Long id) {
+        TradeDTO trade = tradeService.getTradeById(id);
+        return ResponseEntity.ok(trade);
+    }
+
+    @PostMapping
+    public ResponseEntity<TradeDTO> addTrade(@RequestBody Trade trade) {
+        Trade savedTrade = tradeService.saveTrade(trade);
+        return ResponseEntity.ok(tradeService.convertToDTO(savedTrade));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Trade> updateTrade(@PathVariable Long id, @RequestBody Trade trade) {
-        return ResponseEntity.ok(tradeService.updateTrade(id, trade));
+    public ResponseEntity<TradeDTO> updateTrade(@PathVariable Long id, @RequestBody Trade trade) {
+        Trade updatedTrade = tradeService.updateTrade(id, trade);
+        return ResponseEntity.ok(tradeService.convertToDTO(updatedTrade));
     }
 
     @DeleteMapping("/{id}")
