@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Size;
 @Table(name = "clothing_items")
 public class ClothingItem {
 
-    // Attributes
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,11 +30,10 @@ public class ClothingItem {
     @NotNull(message = "Price is required")
     private Double price;
 
-    // Relationships
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
-    private User user;
+    @JsonIgnoreProperties("clothingItems")
+    private User user; // This is the correct type
 
     // Getters and Setters
     public Long getId() {

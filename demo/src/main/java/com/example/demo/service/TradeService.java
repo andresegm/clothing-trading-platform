@@ -1,11 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.TradeDTO;
 import com.example.demo.model.Trade;
+import com.example.demo.repository.TradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.demo.repository.TradeRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TradeService {
@@ -17,16 +19,21 @@ public class TradeService {
         return tradeRepository.save(trade);
     }
 
-    public List<Trade> getAllTrades() {
-        return tradeRepository.findAll();
+    public List<TradeDTO> getAllTrades() {
+        return tradeRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Trade getTradeById(Long id) {
-        return tradeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+    public TradeDTO getTradeById(Long id) {
+        Trade trade = tradeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+        return convertToDTO(trade);
     }
 
     public Trade updateTrade(Long id, Trade trade) {
-        Trade existingTrade = getTradeById(id);
+        Trade existingTrade = tradeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
         existingTrade.setStatus(trade.getStatus());
         existingTrade.setItem(trade.getItem());
         existingTrade.setInitiator(trade.getInitiator());
@@ -36,5 +43,18 @@ public class TradeService {
 
     public void deleteTrade(Long id) {
         tradeRepository.deleteById(id);
+    }
+
+    public TradeDTO convertToDTO(Trade trade) {
+        return new TradeDTO(
+                trade.getId(),
+                trade.getStatus(),
+                trade.getItem().getId(),
+                trade.getItem().getTitle(),
+                trade.getInitiator().getId(),
+                trade.getInitiator().getUsername(),
+                trade.getReceiver().getId(),
+                trade.getReceiver().getUsername()
+        );
     }
 }
