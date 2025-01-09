@@ -30,6 +30,7 @@ public class TradeController {
 
     @PostMapping
     public ResponseEntity<TradeDTO> addTrade(@RequestBody Trade trade) {
+        // Save trade and convert to DTO
         Trade savedTrade = tradeService.saveTrade(trade);
         return ResponseEntity.ok(tradeService.convertToDTO(savedTrade));
     }
