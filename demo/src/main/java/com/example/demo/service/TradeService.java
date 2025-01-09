@@ -61,12 +61,15 @@ public class TradeService {
     public Trade updateTrade(Long id, Trade trade) {
         Trade existingTrade = tradeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+
         existingTrade.setStatus(trade.getStatus());
-        existingTrade.setItem(trade.getItem());
-        existingTrade.setInitiator(trade.getInitiator());
-        existingTrade.setReceiver(trade.getReceiver());
+        existingTrade.setItem(fetchClothingItem(trade.getItem().getId())); // Fetch item
+        existingTrade.setInitiator(fetchUser(trade.getInitiator().getId())); // Fetch initiator
+        existingTrade.setReceiver(fetchUser(trade.getReceiver().getId())); // Fetch receiver
+
         return tradeRepository.save(existingTrade);
     }
+
 
     public void deleteTrade(Long id) {
         tradeRepository.deleteById(id);
