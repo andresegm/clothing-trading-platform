@@ -3,9 +3,9 @@ package com.example.demo.service;
 import com.example.demo.dto.ClothingItemDTO;
 import com.example.demo.model.ClothingItem;
 import com.example.demo.model.User;
+import com.example.demo.repository.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.demo.repository.ClothingItemRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,22 +14,14 @@ import java.util.stream.Collectors;
 public class ClothingItemService {
 
     @Autowired
-    private ClothingItemRepository clothingItemRepository;
+    private BaseRepository<ClothingItem, Long> clothingItemRepository;
 
     @Autowired
-    private UserService userService;
+    private BaseRepository<User, Long> userRepository;
 
     public ClothingItem saveClothingItem(ClothingItem clothingItem) {
-        // Validate that the User exists
-        if (clothingItem.getUser() == null || clothingItem.getUser().getId() == null) {
-            throw new IllegalArgumentException("User must be associated with the clothing item.");
-        }
-
-        // Fetch the User entity
-        User user = userService.getUserEntityById(clothingItem.getUser().getId());
-        clothingItem.setUser(user); // Reassociate the validated User
-
-        // Save the clothing item
+        // Validate and fetch associated User
+        clothingItem.setUser(fetchEntity(userRepository, clothingItem.getUser().getId(), "User"));
         return clothingItemRepository.save(clothingItem);
     }
 
@@ -40,14 +32,11 @@ public class ClothingItemService {
     }
 
     public ClothingItemDTO getClothingItemById(Long id) {
-        ClothingItem item = clothingItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ClothingItem not found with id: " + id));
-        return convertToDTO(item);
+        return convertToDTO(fetchEntity(clothingItemRepository, id, "ClothingItem"));
     }
 
     public ClothingItem updateClothingItem(Long id, ClothingItem clothingItem) {
-        ClothingItem existingItem = clothingItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ClothingItem not found with id: " + id));
+        ClothingItem existingItem = fetchEntity(clothingItemRepository, id, "ClothingItem");
         existingItem.setTitle(clothingItem.getTitle());
         existingItem.setDescription(clothingItem.getDescription());
         existingItem.setSize(clothingItem.getSize());
@@ -72,5 +61,10 @@ public class ClothingItemService {
                 item.getPrice(),
                 item.getUser().getId()
         );
+    }
+
+    private <T> T fetchEntity(BaseRepository<T, Long> repository, Long id, String entityName) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
 }
