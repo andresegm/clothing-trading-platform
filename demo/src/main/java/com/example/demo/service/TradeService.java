@@ -1,8 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.TradeDTO;
+import com.example.demo.model.ClothingItem;
 import com.example.demo.model.Trade;
+import com.example.demo.model.User;
+import com.example.demo.repository.ClothingItemRepository;
 import com.example.demo.repository.TradeRepository;
+import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +19,31 @@ public class TradeService {
     @Autowired
     private TradeRepository tradeRepository;
 
+    @Autowired
+    private ClothingItemRepository clothingItemRepository; // Inject ClothingItemRepository
+
+    @Autowired
+    private UserRepository userRepository; // Inject UserRepository
+
     public Trade saveTrade(Trade trade) {
+        // Fetch related entities to ensure they are properly linked
+        trade.setItem(fetchClothingItem(trade.getItem().getId()));
+        trade.setInitiator(fetchUser(trade.getInitiator().getId()));
+        trade.setReceiver(fetchUser(trade.getReceiver().getId()));
+
         return tradeRepository.save(trade);
+    }
+
+    private ClothingItem fetchClothingItem(Long itemId) {
+        // Logic to fetch ClothingItem by ID
+        return clothingItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("ClothingItem not found with id: " + itemId));
+    }
+
+    private User fetchUser(Long userId) {
+        // Logic to fetch User by ID
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
     public List<TradeDTO> getAllTrades() {
@@ -58,3 +85,4 @@ public class TradeService {
         );
     }
 }
+
