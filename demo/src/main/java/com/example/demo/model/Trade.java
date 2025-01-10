@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "trades")
 public class Trade {
@@ -29,6 +31,9 @@ public class Trade {
     @JoinColumn(name = "item_id", nullable = false)
     @JsonIgnoreProperties("item")
     private ClothingItem item;
+
+    @Column(nullable = false)
+    private LocalDateTime tradeDate;
 
 // Getters and Setters
     public Long getId() {
@@ -69,5 +74,13 @@ public class Trade {
 
     public void setReceiver(User receiver) {
         this.receiver = receiver;
+    }
+
+    public LocalDateTime getTradeDate() {
+        return tradeDate;
+    }
+
+    public void setTradeDate(LocalDateTime tradeDate) {
+        this.tradeDate = tradeDate;
     }
 }
