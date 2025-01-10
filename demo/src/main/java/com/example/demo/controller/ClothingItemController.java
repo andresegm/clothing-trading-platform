@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ClothingItemDTO;
-import com.example.demo.dto.UserDTO;
 import com.example.demo.model.ClothingItem;
 import com.example.demo.model.User;
 import com.example.demo.service.ClothingItemService;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/clothing-items")
@@ -22,14 +20,11 @@ public class ClothingItemController {
     private ClothingItemService clothingItemService;
 
     @Autowired
-    private UserService userService; // Add UserService dependency
+    private UserService userService;
 
     @PostMapping
     public ResponseEntity<ClothingItemDTO> addClothingItem(@Valid @RequestBody ClothingItemDTO clothingItemDTO) {
-        // Fetch the User entity by userId from the DTO
         User user = userService.getUserEntityById(clothingItemDTO.getUserId());
-
-        // Create a new ClothingItem and set its fields
         ClothingItem clothingItem = new ClothingItem();
         clothingItem.setTitle(clothingItemDTO.getTitle());
         clothingItem.setDescription(clothingItemDTO.getDescription());
@@ -37,9 +32,7 @@ public class ClothingItemController {
         clothingItem.setBrand(clothingItemDTO.getBrand());
         clothingItem.setCondition(clothingItemDTO.getCondition());
         clothingItem.setPrice(clothingItemDTO.getPrice());
-        clothingItem.setUser(user); // Associate the user
-
-        // Save the ClothingItem and return the DTO
+        clothingItem.setUser(user);
         ClothingItem savedItem = clothingItemService.saveClothingItem(clothingItem);
         return ResponseEntity.ok(clothingItemService.convertToDTO(savedItem));
     }
@@ -47,6 +40,18 @@ public class ClothingItemController {
     @GetMapping
     public ResponseEntity<List<ClothingItemDTO>> getAllClothingItems() {
         List<ClothingItemDTO> items = clothingItemService.getAllClothingItems();
+        return ResponseEntity.ok(items);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<ClothingItemDTO>> filterClothingItems(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String size,
+            @RequestParam(required = false) String condition,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
+        List<ClothingItemDTO> items = clothingItemService.filterClothingItems(title, brand, size, condition, minPrice, maxPrice);
         return ResponseEntity.ok(items);
     }
 
