@@ -45,7 +45,20 @@ public class User {
     @JsonIgnoreProperties("receiver")
     private List<Trade> receivedTrades = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    private List<UserRole> roles = new ArrayList<>();
+
     // Getters and Setters
+
+    public List<UserRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<UserRole> roles) {
+        this.roles = roles;
+    }
+
     public Long getId() {
         return id;
     }
