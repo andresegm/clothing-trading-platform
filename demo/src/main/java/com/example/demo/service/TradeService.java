@@ -25,16 +25,29 @@ public class TradeService {
     private BaseRepository<User, Long> userRepository;
 
     public Trade saveTrade(Trade trade) {
-        // Fetch related entities to ensure they are properly linked
-        trade.setItem(fetchEntity(clothingItemRepository, trade.getItem().getId(), "ClothingItem"));
-        trade.setInitiator(fetchEntity(userRepository, trade.getInitiator().getId(), "User"));
-        trade.setReceiver(fetchEntity(userRepository, trade.getReceiver().getId(), "User"));
+        // Fetch related entities
+        ClothingItem item = clothingItemRepository.findById(trade.getItem().getId())
+                .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + trade.getItem().getId()));
 
-        // Set the tradeDate to the current time
-        trade.setTradeDate(LocalDateTime.now());
+        User initiator = userRepository.findById(trade.getInitiator().getId())
+                .orElseThrow(() -> new RuntimeException("Initiator user not found with id: " + trade.getInitiator().getId()));
+
+        User receiver = userRepository.findById(trade.getReceiver().getId())
+                .orElseThrow(() -> new RuntimeException("Receiver user not found with id: " + trade.getReceiver().getId()));
+
+        // Set the relationships
+        trade.setItem(item);
+        trade.setInitiator(initiator);
+        trade.setReceiver(receiver);
+
+        // Set trade date if not already provided
+        if (trade.getTradeDate() == null) {
+            trade.setTradeDate(LocalDateTime.now());
+        }
 
         return tradeRepository.save(trade);
     }
+
 
     public Trade updateTrade(Long id, Trade trade) {
         Trade existingTrade = tradeRepository.findById(id)
@@ -87,12 +100,12 @@ public class TradeService {
         return new TradeDTO(
                 trade.getId(),
                 trade.getStatus(),
-                trade.getItem().getId(),
-                trade.getItem().getTitle(),
-                trade.getInitiator().getId(),
-                trade.getInitiator().getUsername(),
-                trade.getReceiver().getId(),
-                trade.getReceiver().getUsername()
+                trade.getItem() != null ? trade.getItem().getId() : null,
+                trade.getItem() != null ? trade.getItem().getTitle() : null,
+                trade.getInitiator() != null ? trade.getInitiator().getId() : null,
+                trade.getInitiator() != null ? trade.getInitiator().getUsername() : null,
+                trade.getReceiver() != null ? trade.getReceiver().getId() : null,
+                trade.getReceiver() != null ? trade.getReceiver().getUsername() : null
         );
     }
 }
