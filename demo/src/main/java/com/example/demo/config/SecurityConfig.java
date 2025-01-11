@@ -17,14 +17,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // Updated CSRF configuration
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Public endpoints
-                        .requestMatchers("/api/users/**").hasRole("ADMIN") // Restrict to ADMIN
-                        .requestMatchers("/api/user-roles/**").hasRole("ADMIN") // Restrict to ADMIN
-                        .anyRequest().authenticated() // Require authentication for all other endpoints
+                        // Public Endpoints
+                        .requestMatchers("/api/auth/register").permitAll() // Allow public registration (optional)
+
+                        // Admin-Only Endpoints
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/user-roles/**").hasRole("ADMIN")
+
+                        // User-Accessible Endpoints
+                        .requestMatchers("/api/clothing-items/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/trades/**").hasAnyRole("USER", "ADMIN")
+
+                        // All Other Endpoints
+                        .anyRequest().authenticated()
                 )
-                .httpBasic(httpBasic -> {});
+                .httpBasic(httpBasic -> {}); // Use HTTP Basic Authentication
         return http.build();
     }
+
 }
