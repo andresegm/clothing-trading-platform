@@ -8,7 +8,9 @@ import com.example.demo.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +23,8 @@ public class UserService {
     private UserRoleRepository userRoleRepository;
 
     public User saveUser(User user) {
-        List<UserRole> userRoles = user.getRoles().stream()
+        // Collect roles into a Set to ensure uniqueness
+        Set<UserRole> userRoles = user.getRoles().stream()
                 .map(role -> {
                     // Check if the role already exists
                     return userRoleRepository.findByRoleName(role.getRoleName())
@@ -32,11 +35,12 @@ public class UserService {
                                 return userRoleRepository.save(newRole);
                             });
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet()); // Collect into a Set
 
-        user.setRoles(userRoles);
-        return userRepository.save(user);
+        user.setRoles(userRoles); // Set the roles as a Set
+        return userRepository.save(user); // Save the user
     }
+
 
 
     public List<UserDTO> getAllUsers() {
@@ -47,11 +51,31 @@ public class UserService {
 
     public User updateUser(Long id, User user) {
         User existingUser = fetchEntity(userRepository, id, "User");
+
+        // Update basic fields
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
         existingUser.setPassword(user.getPassword());
-        return userRepository.save(existingUser);
+
+        // Collect roles into a Set to ensure uniqueness
+        Set<UserRole> userRoles = user.getRoles().stream()
+                .map(role -> {
+                    // Check if the role already exists
+                    return userRoleRepository.findByRoleName(role.getRoleName())
+                            .orElseGet(() -> {
+                                // If it doesn't exist, save it
+                                UserRole newRole = new UserRole();
+                                newRole.setRoleName(role.getRoleName());
+                                return userRoleRepository.save(newRole);
+                            });
+                })
+                .collect(Collectors.toSet()); // Collect into a Set
+
+        existingUser.setRoles(userRoles); // Set the roles as a Set
+        return userRepository.save(existingUser); // Save the updated user
     }
+
+
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
@@ -74,3 +98,4 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
 }
+

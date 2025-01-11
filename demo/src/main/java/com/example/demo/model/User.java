@@ -1,15 +1,14 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -33,31 +32,28 @@ public class User {
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
+    // Relationship with ClothingItem
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("user")
     private List<ClothingItem> clothingItems = new ArrayList<>();
 
+    // Relationship with initiated trades
     @OneToMany(mappedBy = "initiator", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("initiator")
     private List<Trade> initiatedTrades = new ArrayList<>();
 
+    // Relationship with received trades
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("receiver")
     private List<Trade> receivedTrades = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "user_id")
-    private List<UserRole> roles = new ArrayList<>();
+    // Many-to-Many relationship with UserRole
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<UserRole> roles = new HashSet<>();
 
     // Getters and Setters
-
-    public List<UserRole> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<UserRole> roles) {
-        this.roles = roles;
-    }
 
     public Long getId() {
         return id;
@@ -113,5 +109,13 @@ public class User {
 
     public void setReceivedTrades(List<Trade> receivedTrades) {
         this.receivedTrades = receivedTrades;
+    }
+
+    public Set<UserRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<UserRole> roles) {
+        this.roles = roles;
     }
 }
