@@ -23,6 +23,15 @@ public class UserRole {
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 
+    // Default Constructor
+    public UserRole() {
+    }
+
+    // Constructor with roleName
+    public UserRole(String roleName) {
+        this.roleName = roleName;
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;

@@ -45,7 +45,7 @@ public class User {
     private List<Trade> receivedTrades = new ArrayList<>();
 
     // Many-to-Many relationship with UserRole
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
