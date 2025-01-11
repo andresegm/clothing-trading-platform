@@ -1,10 +1,14 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
-@Table(name = "user_roles")
+@Table(name = "roles")
 public class UserRole {
 
     @Id
@@ -14,6 +18,10 @@ public class UserRole {
     @NotBlank(message = "Role name is required")
     @Column(nullable = false, unique = true)
     private String roleName;
+
+    @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
+    private Set<User> users = new HashSet<>();
 
     // Getters and Setters
     public Long getId() {
@@ -30,5 +38,13 @@ public class UserRole {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }
