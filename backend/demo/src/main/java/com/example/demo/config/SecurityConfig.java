@@ -20,7 +20,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
-                        .requestMatchers("/api/auth/register").permitAll() // Allow public registration (optional)
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Allow public login and registration
 
                         // Admin-Only Endpoints
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
