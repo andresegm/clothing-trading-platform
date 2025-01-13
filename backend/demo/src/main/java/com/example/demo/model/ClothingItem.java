@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "clothing_items")
 public class ClothingItem {
@@ -33,7 +35,10 @@ public class ClothingItem {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnoreProperties("clothingItems")
-    private User user; // This is the correct type
+    private User user;
+
+    @Column(name = "date_added", nullable = false, updatable = false)
+    private LocalDateTime dateAdded;
 
     // Getters and Setters
     public Long getId() {

@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Trade;
+import com.example.demo.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,4 +21,7 @@ public interface TradeRepository extends BaseRepository<Trade, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")
+    List<Trade> findTop10ByUserOrderByTradeDateDesc(@Param("user") User user);
 }

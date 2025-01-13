@@ -89,4 +89,8 @@ public class ClothingItemService {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
+
+    public List<ClothingItem> findRecentByUser(User user) {
+        return clothingItemRepository.findTop10ByUserOrderByDateAddedDesc(user);
+    }
 }

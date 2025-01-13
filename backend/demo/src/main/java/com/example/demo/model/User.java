@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -34,14 +35,17 @@ public class User {
 
     // Relationship with ClothingItem
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<ClothingItem> clothingItems = new ArrayList<>();
 
     // Relationship with initiated trades
     @OneToMany(mappedBy = "initiator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Trade> initiatedTrades = new ArrayList<>();
 
     // Relationship with received trades
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Trade> receivedTrades = new ArrayList<>();
 
     // Many-to-Many relationship with UserRole
