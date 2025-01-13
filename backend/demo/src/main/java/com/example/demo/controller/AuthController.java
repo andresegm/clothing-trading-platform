@@ -37,14 +37,16 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         boolean isAuthenticated = authService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
         if (isAuthenticated) {
-            // Return a dummy token for now
-            String token = "dummy-jwt-token-for-" + loginRequest.getUsername();
-            return ResponseEntity.ok(token);
+            // Return the token as a JSON response
+            Map<String, String> response = new HashMap<>();
+            response.put("token", "dummy-jwt-token-for-" + loginRequest.getUsername());
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(401).body("Invalid username or password.");
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
         }
     }
+
 }
