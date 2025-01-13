@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -17,15 +20,20 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest registerRequest) {
+    public ResponseEntity<Map<String, String>> register(@RequestBody @Valid RegisterRequest registerRequest) {
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(registerRequest.getPassword());
 
         authService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully!");
+
+        // Return a JSON response
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User registered successfully!");
+        return ResponseEntity.ok(response);
     }
+
 
 
     @PostMapping("/login")
