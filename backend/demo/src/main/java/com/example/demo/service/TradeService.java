@@ -5,6 +5,7 @@ import com.example.demo.model.ClothingItem;
 import com.example.demo.model.Trade;
 import com.example.demo.model.User;
 import com.example.demo.repository.BaseRepository;
+import com.example.demo.repository.TradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class TradeService {
 
     @Autowired
-    private BaseRepository<Trade, Long> tradeRepository;
+    private TradeRepository tradeRepository;
 
     @Autowired
     private BaseRepository<ClothingItem, Long> clothingItemRepository;
@@ -108,4 +109,9 @@ public class TradeService {
                 trade.getReceiver() != null ? trade.getReceiver().getUsername() : null
         );
     }
+
+    public List<Trade> findRecentByUser(User user) {
+        return tradeRepository.findTop10ByUserOrderByTradeDateDesc(user);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.ClothingItem;
+import com.example.demo.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,4 +25,7 @@ public interface ClothingItemRepository extends BaseRepository<ClothingItem, Lon
             @Param("maxPrice") Double maxPrice
     );
 
+    // Query to fetch the top 10 most recent clothing items uploaded by a user
+    @Query("SELECT c FROM ClothingItem c WHERE c.user = :user ORDER BY c.dateAdded DESC")
+    List<ClothingItem> findTop10ByUserOrderByDateAddedDesc(@Param("user") User user);
 }
