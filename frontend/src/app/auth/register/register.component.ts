@@ -1,29 +1,31 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../../services/api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent {
   username = '';
   email = '';
   password = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   onSubmit() {
     const registerData = { username: this.username, email: this.email, password: this.password };
     this.apiService.register(registerData).subscribe({
       next: (response) => {
         console.log('Registration successful:', response);
-        // Redirect user to the login page
+        alert('Registration successful! You can now log in.');
+        this.router.navigate(['/login']); // Redirect to login page
       },
       error: (err) => {
         console.error('Registration failed:', err);
-        // Show an error message to the user
-      }
+        alert('Registration failed. Please try again.');
+      },
     });
   }
 }
