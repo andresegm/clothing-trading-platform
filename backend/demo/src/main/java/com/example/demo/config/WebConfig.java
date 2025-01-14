@@ -16,7 +16,7 @@ public class WebConfig {
                 registry.addMapping("/**") // Allow all paths
                         .allowedOrigins("http://localhost:4200") // Frontend origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // HTTP methods
-                        .allowedHeaders("*") // Allow all headers
+                        .allowedHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin") // Allow all headers
                         .allowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
             }
         };

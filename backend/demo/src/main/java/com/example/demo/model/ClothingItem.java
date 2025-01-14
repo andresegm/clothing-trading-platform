@@ -40,6 +40,12 @@ public class ClothingItem {
     @Column(name = "date_added", nullable = false, updatable = false)
     private LocalDateTime dateAdded;
 
+    // Automatically set the dateAdded field before persisting
+    @PrePersist
+    protected void onCreate() {
+        this.dateAdded = LocalDateTime.now();
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -103,5 +109,13 @@ public class ClothingItem {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public LocalDateTime getDateAdded() {
+        return dateAdded;
+    }
+
+    public void setDateAdded(LocalDateTime dateAdded) {
+        this.dateAdded = dateAdded;
     }
 }
