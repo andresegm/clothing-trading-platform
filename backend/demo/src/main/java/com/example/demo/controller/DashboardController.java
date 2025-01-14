@@ -34,13 +34,19 @@ public class DashboardController {
 
     @GetMapping("/data")
     public ResponseEntity<?> getDashboardData(Principal principal) {
+        if (principal == null) {
+            System.out.println("No principal found. Token might be invalid.");
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        System.out.println("Authenticated principal: " + principal.getName());
         String username = principal.getName();
 
-        // Fetch user details
         User user = userService.findByUsername(username);
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");
         }
+
 
         // Fetch recent clothing items
         List<ClothingItemDTO> recentItems = clothingItemService.findRecentByUser(user).stream()

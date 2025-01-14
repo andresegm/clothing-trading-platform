@@ -1,6 +1,32 @@
-<div class="dashboard-container">
-  <h1>Welcome to the Dashboard!</h1>
-  <p>This is a placeholder for authenticated user content.</p>
+<div class="dashboard">
+  <h1>Dashboard</h1>
+  <button (click)="onLogout()">Logout</button>
 
-  <button (click)="onLogout()">Logout</button> <!-- Logout button -->
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="user">
+    <h2>User Info</h2>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+  </div>
+
+  <div>
+    <h2>Recent Clothing Items</h2>
+    <ul *ngIf="recentClothingItems?.length; else noItems">
+      <li *ngFor="let item of recentClothingItems">
+        {{ item.title }} ({{ item.size }}) - ${{ item.price }}
+      </li>
+    </ul>
+    <ng-template #noItems><p>No recent clothing items.</p></ng-template>
+  </div>
+
+  <div>
+    <h2>Recent Trades</h2>
+    <ul *ngIf="recentTrades?.length; else noTrades">
+      <li *ngFor="let trade of recentTrades">
+        {{ trade.status }}: {{ trade.itemTitle }}
+      </li>
+    </ul>
+    <ng-template #noTrades><p>No recent trades.</p></ng-template>
+  </div>
 </div>

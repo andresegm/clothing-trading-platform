@@ -15,14 +15,21 @@ export class LoginComponent {
 
   onSubmit() {
     const loginData = { username: this.username, password: this.password };
+
     this.apiService.login(loginData).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-        alert('Login successful!');
-        // Save the token in localStorage
-        localStorage.setItem('authToken', response);
-        // Redirect to a protected page or dashboard
-        this.router.navigate(['/dashboard']);
+
+        // Save the token in localStorage (assuming the token is in `response.token`)
+        if (response && response.token) {
+          localStorage.setItem('authToken', response.token);
+          alert('Login successful!');
+          // Redirect to the dashboard
+          this.router.navigate(['/dashboard']);
+        } else {
+          console.error('No token received from backend:', response);
+          alert('Login failed. Please try again.');
+        }
       },
       error: (err) => {
         console.error('Login failed:', err);
