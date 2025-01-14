@@ -4,8 +4,9 @@ import com.example.demo.dto.TradeDTO;
 import com.example.demo.model.ClothingItem;
 import com.example.demo.model.Trade;
 import com.example.demo.model.User;
-import com.example.demo.repository.BaseRepository;
+import com.example.demo.repository.ClothingItemRepository;
 import com.example.demo.repository.TradeRepository;
+import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,55 +21,20 @@ public class TradeService {
     private TradeRepository tradeRepository;
 
     @Autowired
-    private BaseRepository<ClothingItem, Long> clothingItemRepository;
+    private ClothingItemRepository clothingItemRepository;
 
     @Autowired
-    private BaseRepository<User, Long> userRepository;
+    private UserRepository userRepository;
 
     public Trade saveTrade(Trade trade) {
-        // Fetch related entities
-        ClothingItem item = clothingItemRepository.findById(trade.getItem().getId())
-                .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + trade.getItem().getId()));
-
-        User initiator = userRepository.findById(trade.getInitiator().getId())
-                .orElseThrow(() -> new RuntimeException("Initiator user not found with id: " + trade.getInitiator().getId()));
-
-        User receiver = userRepository.findById(trade.getReceiver().getId())
-                .orElseThrow(() -> new RuntimeException("Receiver user not found with id: " + trade.getReceiver().getId()));
-
-        // Set the relationships
-        trade.setItem(item);
-        trade.setInitiator(initiator);
-        trade.setReceiver(receiver);
-
-        // Set trade date if not already provided
-        if (trade.getTradeDate() == null) {
-            trade.setTradeDate(LocalDateTime.now());
-        }
-
         return tradeRepository.save(trade);
     }
-
 
     public Trade updateTrade(Long id, Trade trade) {
         Trade existingTrade = tradeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
-
-        // Update fields
         existingTrade.setStatus(trade.getStatus());
-        existingTrade.setItem(fetchEntity(clothingItemRepository, trade.getItem().getId(), "ClothingItem"));
-        existingTrade.setInitiator(fetchEntity(userRepository, trade.getInitiator().getId(), "User"));
-        existingTrade.setReceiver(fetchEntity(userRepository, trade.getReceiver().getId(), "User"));
-
-        // Update the tradeDate to the current time
-        existingTrade.setTradeDate(LocalDateTime.now());
-
         return tradeRepository.save(existingTrade);
-    }
-
-    private <T> T fetchEntity(BaseRepository<T, Long> repository, Long id, String entityName) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
 
     public List<TradeDTO> getAllTrades() {
@@ -83,12 +49,77 @@ public class TradeService {
         return convertToDTO(trade);
     }
 
+    public Trade getTradeByIdEntity(Long id) {
+        return tradeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+    }
+
     public void deleteTrade(Long id) {
         tradeRepository.deleteById(id);
     }
 
+    public Trade createTrade(TradeDTO tradeDTO, String initiatorUsername) {
+        User initiator = userRepository.findByUsername(initiatorUsername)
+                .orElseThrow(() -> new RuntimeException("User not found: " + initiatorUsername));
+
+        ClothingItem item = clothingItemRepository.findById(tradeDTO.getItemId())
+                .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + tradeDTO.getItemId()));
+
+        if (item.getUser().equals(initiator)) {
+            throw new RuntimeException("Cannot trade your own item.");
+        }
+
+        Trade trade = new Trade();
+        trade.setStatus("Pending");
+        trade.setItem(item);
+        trade.setInitiator(initiator);
+        trade.setReceiver(item.getUser());
+        trade.setTradeDate(LocalDateTime.now());
+
+        return tradeRepository.save(trade);
+    }
+
+    public Trade updateTradeStatus(Long id, String action, String username) {
+        Trade trade = getTradeByIdEntity(id);
+
+        if (!trade.getInitiator().getUsername().equals(username) &&
+                !trade.getReceiver().getUsername().equals(username)) {
+            throw new RuntimeException("User not authorized to update this trade.");
+        }
+
+        switch (action.toLowerCase()) {
+            case "accept":
+                if (trade.getReceiver().getUsername().equals(username)) {
+                    trade.setStatus("Pending");
+                } else {
+                    throw new RuntimeException("Only the receiver can accept trades.");
+                }
+                break;
+
+            case "decline":
+                if (trade.getReceiver().getUsername().equals(username)) {
+                    trade.setStatus("Cancelled");
+                } else {
+                    throw new RuntimeException("Only the receiver can decline trades.");
+                }
+                break;
+
+            case "complete":
+                trade.setStatus("Completed");
+                break;
+
+            case "cancel":
+                trade.setStatus("Cancelled");
+                break;
+
+            default:
+                throw new RuntimeException("Invalid action.");
+        }
+
+        return tradeRepository.save(trade);
+    }
+
     public List<TradeDTO> generateTradeReport(String status, LocalDateTime startDate, LocalDateTime endDate) {
-        // Filter trades based on the provided criteria
         return tradeRepository.findAll().stream()
                 .filter(trade -> (status == null || trade.getStatus().equalsIgnoreCase(status)) &&
                         (startDate == null || !trade.getTradeDate().isBefore(startDate)) &&
@@ -96,6 +127,21 @@ public class TradeService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    public List<TradeDTO> getTradesForUser(String username) {
+        // Fetch the user entity by username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        // Fetch trades where the user is either the initiator or receiver
+        List<Trade> trades = tradeRepository.findTradesForUser(user);
+
+        // Convert trades to DTOs
+        return trades.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     public TradeDTO convertToDTO(Trade trade) {
         return new TradeDTO(
@@ -109,9 +155,7 @@ public class TradeService {
                 trade.getReceiver() != null ? trade.getReceiver().getUsername() : null
         );
     }
-
     public List<Trade> findRecentByUser(User user) {
         return tradeRepository.findTop10ByUserOrderByTradeDateDesc(user);
     }
-
 }
