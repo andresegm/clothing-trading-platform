@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/trades")
@@ -42,9 +43,10 @@ public class TradeController {
     @PutMapping("/{id}/status")
     public ResponseEntity<TradeDTO> updateTradeStatus(
             @PathVariable Long id,
-            @RequestParam String action,
+            @RequestBody Map<String, String> requestBody,
             Principal principal
     ) {
+        String action = requestBody.get("status"); // Extract status from the request body
         Trade updatedTrade = tradeService.updateTradeStatus(id, action, principal.getName());
         return ResponseEntity.ok(tradeService.convertToDTO(updatedTrade));
     }
