@@ -1,0 +1,32 @@
+<app-header></app-header>
+<div class="search-results">
+  <h1>Search Results</h1>
+
+  <!-- Filter Form -->
+  <form (ngSubmit)="applyFilters()">
+    <label for="brand">Brand:</label>
+    <input type="text" id="brand" [(ngModel)]="filters.brand" name="brand" />
+
+    <label for="size">Size:</label>
+    <input type="text" id="size" [(ngModel)]="filters.size" name="size" />
+
+    <label for="minPrice">Min Price:</label>
+    <input type="number" id="minPrice" [(ngModel)]="filters.minPrice" name="minPrice" />
+
+    <label for="maxPrice">Max Price:</label>
+    <input type="number" id="maxPrice" [(ngModel)]="filters.maxPrice" name="maxPrice" />
+
+    <button type="submit">Apply Filters</button>
+  </form>
+
+  <!-- Results List -->
+  <ul>
+    <li *ngFor="let item of clothingItems">
+      {{ item.title }} - {{ item.brand }} - {{ item.size }} - ${{ item.price }}
+    </li>
+  </ul>
+
+  <div *ngIf="!clothingItems.length && searched">
+    <p>No items found.</p>
+  </div>
+</div>
