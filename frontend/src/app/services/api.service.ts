@@ -70,4 +70,18 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/clothing-items`, item, { headers });
   }
 
+  getUserTrades(): Observable<any> {
+    const token = localStorage.getItem('authToken'); // Ensure consistent token key
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get(`${this.baseUrl}/trades`, { headers });
+  }
+
+  updateTradeStatus(tradeId: number, status: string): Observable<any> {
+    const body = { status };
+    const token = localStorage.getItem('authToken'); // Ensure consistent token key usage
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.put(`${this.baseUrl}/trades/${tradeId}/status`, body, { headers });
+  }
 }

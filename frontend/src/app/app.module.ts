@@ -9,6 +9,10 @@ import { HeaderComponent } from './header/header.component';
 import {FormsModule} from "@angular/forms";
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { MyClothingItemsComponent } from './my-clothing-items/my-clothing-items.component';
+import { MyTradesComponent } from './my-trades/my-trades.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatTabsModule} from "@angular/material/tabs";
 
 @NgModule({
   declarations: [
@@ -16,15 +20,19 @@ import { MyClothingItemsComponent } from './my-clothing-items/my-clothing-items.
     DashboardComponent,
     HeaderComponent,
     SearchResultsComponent,
-    MyClothingItemsComponent
+    MyClothingItemsComponent,
+    MyTradesComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        HttpClientModule,
-        AuthModule,
-        FormsModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    AuthModule,
+    FormsModule,
+    MatSnackBarModule,
+    BrowserAnimationsModule,
+    MatTabsModule
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
