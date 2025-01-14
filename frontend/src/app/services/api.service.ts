@@ -46,11 +46,28 @@ export class ApiService {
     if (filters.minPrice != null) params = params.set('minPrice', filters.minPrice.toString());
     if (filters.maxPrice != null) params = params.set('maxPrice', filters.maxPrice.toString());
 
-    const rawToken = localStorage.getItem('authToken'); // Get the token
-    const token = typeof rawToken === 'string' ? rawToken : ''; // Ensure it's a string
+    const rawToken = localStorage.getItem('authToken');
+    const token = typeof rawToken === 'string' ? rawToken : '';
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { headers, params });
   }
+
+  // Get items for the logged-in user
+  getMyClothingItems(userId: number): Observable<any[]> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, { headers });
+  }
+
+// Add a new clothing item
+  addClothingItem(item: any): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.post(`${this.baseUrl}/clothing-items`, item, { headers });
+  }
+
 }
