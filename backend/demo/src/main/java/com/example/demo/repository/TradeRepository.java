@@ -24,4 +24,8 @@ public interface TradeRepository extends BaseRepository<Trade, Long> {
 
     @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")
     List<Trade> findTop10ByUserOrderByTradeDateDesc(@Param("user") User user);
+
+    @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")
+    List<Trade> findTradesForUser(@Param("user") User user);
+
 }

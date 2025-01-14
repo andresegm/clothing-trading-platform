@@ -35,9 +35,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Public endpoints
-                        .requestMatchers("/api/dashboard/data").authenticated() // Dashboard access
+                        .requestMatchers("/api/dashboard/data").authenticated() // Dashboard for authenticated users
+                        .requestMatchers("/api/trades/report").hasRole("ADMIN") // Restrict report to ADMIN
+                        .requestMatchers("/api/trades/**").authenticated() // Trades for authenticated users
                         .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN") // User-related endpoints
-                        .anyRequest().authenticated() // Default rule for other endpoints
+                        .anyRequest().authenticated() // Default rule for all other endpoints
                 )
                 .addFilterBefore(dummyTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Register filter
         return http.build();

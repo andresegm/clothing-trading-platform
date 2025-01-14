@@ -1,5 +1,7 @@
 package com.example.demo.security;
 
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,15 +14,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class DummyTokenAuthenticationFilter extends OncePerRequestFilter {
+
+    private final UserRepository userRepository;
+
+    public DummyTokenAuthenticationFilter(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -31,7 +36,21 @@ public class DummyTokenAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7); // Extract the token after "Bearer "
             if (token.startsWith("dummy-jwt-token-for-")) {
                 String username = token.substring("dummy-jwt-token-for-".length());
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+                // Fetch the user and their roles from the database
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+                // Map roles to GrantedAuthority
+                List<GrantedAuthority> authorities = user.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
+                        .collect(Collectors.toList());
+
+                // Debug logs
+                System.out.println("Authenticated username: " + username);
+                System.out.println("Roles: " + authorities);
+
+                // Create the Authentication object
                 Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -39,5 +58,4 @@ public class DummyTokenAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }
