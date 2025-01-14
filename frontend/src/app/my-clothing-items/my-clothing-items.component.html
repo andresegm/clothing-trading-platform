@@ -1,0 +1,16 @@
+<app-header></app-header>
+<div class="my-clothing-items">
+  <h1>My Clothing Items</h1>
+  <div *ngIf="clothingItems.length">
+    <h2>Your Items</h2>
+    <ul>
+      <li *ngFor="let item of clothingItems">
+        <strong>{{ item.title }}</strong> ({{ item.size }}) - ${{ item.price }}
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="!clothingItems.length">
+    <p>You have not added any items yet.</p>
+  </div>
+</div>

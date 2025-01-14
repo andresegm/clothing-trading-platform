@@ -8,13 +8,15 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { HeaderComponent } from './header/header.component';
 import {FormsModule} from "@angular/forms";
 import { SearchResultsComponent } from './search-results/search-results.component';
+import { MyClothingItemsComponent } from './my-clothing-items/my-clothing-items.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     HeaderComponent,
-    SearchResultsComponent
+    SearchResultsComponent,
+    MyClothingItemsComponent
   ],
     imports: [
         BrowserModule,

@@ -34,9 +34,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/api/dashboard/data").authenticated() // Require authentication for dashboard
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Public endpoints
+                        .requestMatchers("/api/dashboard/data").authenticated() // Dashboard access
+                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN") // User-related endpoints
+                        .anyRequest().authenticated() // Default rule for other endpoints
                 )
                 .addFilterBefore(dummyTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Register filter
         return http.build();

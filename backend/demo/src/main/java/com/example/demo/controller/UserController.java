@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ClothingItemDTO;
 import com.example.demo.dto.UserDTO;
+import com.example.demo.model.ClothingItem;
 import com.example.demo.model.User;
+import com.example.demo.repository.ClothingItemRepository;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ClothingItemRepository clothingItemRepository;
 
     @PostMapping
     public ResponseEntity<UserDTO> addUser(@Valid @RequestBody User user) {
@@ -54,8 +59,11 @@ public class UserController {
         // Fetch the User entity by ID
         User user = userService.getUserEntityById(id);
 
-        // Convert clothing items to DTOs
-        List<ClothingItemDTO> clothingItems = user.getClothingItems().stream()
+        // Fetch the clothing items for this user
+        List<ClothingItem> clothingItems = clothingItemRepository.findTop10ByUserOrderByDateAddedDesc(user);
+
+        // Convert entities to DTOs
+        List<ClothingItemDTO> clothingItemDTOs = clothingItems.stream()
                 .map(item -> new ClothingItemDTO(
                         item.getId(),
                         item.getTitle(),
@@ -64,12 +72,14 @@ public class UserController {
                         item.getBrand(),
                         item.getCondition(),
                         item.getPrice(),
-                        user.getId()
+                        user.getId() // Include user ID in DTO
                 ))
-                .collect(Collectors.toList());
+                .toList();
 
-        return ResponseEntity.ok(clothingItems);
+        // Return the response
+        return ResponseEntity.ok(clothingItemDTOs);
     }
+
 
 
     private UserDTO convertToDTO(User user) {

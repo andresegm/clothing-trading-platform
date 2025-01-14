@@ -4,6 +4,7 @@ import com.example.demo.model.User;
 import com.example.demo.payload.LoginRequest;
 import com.example.demo.payload.RegisterRequest;
 import com.example.demo.service.AuthService;
+import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody @Valid RegisterRequest registerRequest) {
@@ -40,13 +44,19 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         boolean isAuthenticated = authService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
         if (isAuthenticated) {
-            // Return the token as a JSON response
+            // Fetch the user by username
+            User user = userService.findByUsername(loginRequest.getUsername());
+
+            // Return the token and userId as a JSON response
             Map<String, String> response = new HashMap<>();
             response.put("token", "dummy-jwt-token-for-" + loginRequest.getUsername());
+            response.put("userId", String.valueOf(user.getId())); // Add userId to the response
+
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
         }
     }
+
 
 }
