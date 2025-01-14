@@ -1,0 +1,17 @@
+<header class="site-header">
+  <nav>
+    <a routerLink="/home">Home</a>
+    <a routerLink="/dashboard">Dashboard</a>
+    <a routerLink="/search">Search</a>
+  </nav>
+
+  <form (ngSubmit)="onSearch()">
+    <input
+      type="text"
+      placeholder="Search by title..."
+      [(ngModel)]="searchQuery"
+      name="searchQuery"
+    />
+    <button type="submit">Search</button>
+  </form>
+</header>
