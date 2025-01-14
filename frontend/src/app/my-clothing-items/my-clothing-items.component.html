@@ -1,16 +1,34 @@
-<app-header></app-header>
-<div class="my-clothing-items">
-  <h1>My Clothing Items</h1>
-  <div *ngIf="clothingItems.length">
-    <h2>Your Items</h2>
-    <ul>
-      <li *ngFor="let item of clothingItems">
-        <strong>{{ item.title }}</strong> ({{ item.size }}) - ${{ item.price }}
-      </li>
-    </ul>
-  </div>
+<div class="add-item-form">
+  <h2>Add a New Clothing Item</h2>
+  <form (ngSubmit)="onAddItem()">
+    <label for="title">Title:</label>
+    <input type="text" id="title" [(ngModel)]="newItem.title" name="title" required />
 
-  <div *ngIf="!clothingItems.length">
-    <p>You have not added any items yet.</p>
-  </div>
+    <label for="description">Description:</label>
+    <textarea id="description" [(ngModel)]="newItem.description" name="description"></textarea>
+
+    <label for="size">Size:</label>
+    <input type="text" id="size" [(ngModel)]="newItem.size" name="size" required />
+
+    <label for="brand">Brand:</label>
+    <input type="text" id="brand" [(ngModel)]="newItem.brand" name="brand" />
+
+    <label for="condition">Condition:</label>
+    <input type="text" id="condition" [(ngModel)]="newItem.condition" name="condition" />
+
+    <label for="price">Price:</label>
+    <input type="number" id="price" [(ngModel)]="newItem.price" name="price" required />
+
+    <button type="submit">Add Item</button>
+  </form>
+</div>
+
+<!-- Existing Items List -->
+<div>
+  <h2>Your Clothing Items</h2>
+  <ul>
+    <li *ngFor="let item of clothingItems">
+      {{ item.title }} ({{ item.size }}) - ${{ item.price }}
+    </li>
+  </ul>
 </div>
