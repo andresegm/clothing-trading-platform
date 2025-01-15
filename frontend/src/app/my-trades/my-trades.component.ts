@@ -44,11 +44,11 @@ export class MyTradesComponent implements OnInit {
     this.updateTradeStatus(tradeId, 'cancel');
   }
 
-  private updateTradeStatus(tradeId: number, status: string): void {
+  updateTradeStatus(tradeId: number, status: string): void {
     this.apiService.updateTradeStatus(tradeId, status).subscribe({
-      next: (response: Trade) => {
+      next: (response) => {
         this.snackBar.open(`Trade ${status}ed successfully!`, 'Close', { duration: 3000 });
-        this.fetchTrades(); // Refresh the list
+        this.fetchTrades(); // Refresh the list to reflect the updated status
       },
       error: (err) => {
         console.error(err);
@@ -56,4 +56,5 @@ export class MyTradesComponent implements OnInit {
       }
     });
   }
+
 }

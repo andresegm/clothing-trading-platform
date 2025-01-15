@@ -90,7 +90,7 @@ public class TradeService {
         switch (action.toLowerCase()) {
             case "accept":
                 if (trade.getReceiver().getUsername().equals(username)) {
-                    trade.setStatus("Pending");
+                    trade.setStatus("Accepted");
                 } else {
                     throw new RuntimeException("Only the receiver can accept trades.");
                 }

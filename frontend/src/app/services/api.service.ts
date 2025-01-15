@@ -84,4 +84,27 @@ export class ApiService {
 
     return this.http.put(`${this.baseUrl}/trades/${tradeId}/status`, body, { headers });
   }
+
+  initiateTrade(itemId: number, status: string): Observable<any> {
+    const token = localStorage.getItem('authToken'); // Get the token from localStorage
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    const body = { itemId, status }; // Payload for the API request
+
+    return this.http.post(`${this.baseUrl}/trades`, body, { headers });
+  }
+
+  getItemDetails(itemId: number): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get(`${this.baseUrl}/clothing-items/${itemId}`, { headers });
+  }
+
+  checkExistingTrade(itemId: number): Observable<boolean> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, { headers });
+  }
+
+
 }

@@ -17,20 +17,16 @@
     <div *ngIf="receivedTrades.length === 0">No received trades found.</div>
     <div *ngFor="let trade of receivedTrades" class="trade-item">
       <p>{{ trade.itemTitle }} - {{ trade.status }}</p>
-      <button
-        *ngIf="trade.status === 'Pending'"
-        (click)="acceptTrade(trade.id)"
-        mat-raised-button
-        color="primary">
-        Accept
-      </button>
-      <button
-        *ngIf="trade.status === 'Pending'"
-        (click)="declineTrade(trade.id)"
-        mat-raised-button
-        color="warn">
-        Decline
-      </button>
+      <div *ngIf="trade.status === 'Pending'">
+        <button (click)="acceptTrade(trade.id)" mat-raised-button color="primary">Accept</button>
+        <button (click)="declineTrade(trade.id)" mat-raised-button color="warn">Decline</button>
+      </div>
+      <div *ngIf="trade.status === 'Accepted'">
+        <button (click)="cancelTrade(trade.id)" mat-raised-button color="warn">Cancel</button>
+      </div>
+      <div *ngIf="trade.status === 'Cancelled'">
+        <p>Trade Cancelled</p>
+      </div>
     </div>
   </mat-tab>
 </mat-tab-group>

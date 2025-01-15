@@ -22,9 +22,12 @@
   <!-- Results List -->
   <ul>
     <li *ngFor="let item of clothingItems">
-      {{ item.title }} - {{ item.brand }} - {{ item.size }} - ${{ item.price }}
+      <a [routerLink]="['/item', item.id]">
+        {{ item.title }} - {{ item.brand }} - {{ item.size }} - ${{ item.price }}
+      </a>
     </li>
   </ul>
+
 
   <div *ngIf="!clothingItems.length && searched">
     <p>No items found.</p>
