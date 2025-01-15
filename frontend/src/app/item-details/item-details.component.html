@@ -1,0 +1,18 @@
+<div *ngIf="item">
+  <h2>{{ item.title }}</h2>
+  <p>Brand: {{ item.brand }}</p>
+  <p>Condition: {{ item.condition }}</p>
+  <p>Price: ${{ item.price }}</p>
+  <p>Description: {{ item.description }}</p>
+
+  <button
+    *ngIf="item.userId !== currentUserId"
+    (click)="onTradeRequest(item.id)"
+    [disabled]="isTradeRequested"
+    mat-raised-button
+    color="primary">
+    Request Trade
+  </button>
+
+  <p *ngIf="isTradeRequested" style="color: gray;">Trade already requested</p>
+</div>

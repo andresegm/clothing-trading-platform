@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.TradeDTO;
 import com.example.demo.model.Trade;
 import com.example.demo.model.User;
+import com.example.demo.repository.TradeRepository;
 import com.example.demo.service.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,9 @@ public class TradeController {
 
     @Autowired
     private TradeService tradeService;
+
+    @Autowired
+    private TradeRepository tradeRepository;
 
     @GetMapping
     public ResponseEntity<List<TradeDTO>> getTradesForUser(Principal principal) {
@@ -39,6 +43,17 @@ public class TradeController {
         Trade newTrade = tradeService.createTrade(tradeDTO, principal.getName());
         return ResponseEntity.ok(tradeService.convertToDTO(newTrade));
     }
+
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> checkExistingTrade(
+            @RequestParam Long itemId,
+            Principal principal
+    ) {
+        String username = principal.getName();
+        boolean exists = tradeRepository.existsByInitiatorUsernameAndItemId(username, itemId);
+        return ResponseEntity.ok(exists);
+    }
+
 
     @PutMapping("/{id}/status")
     public ResponseEntity<TradeDTO> updateTradeStatus(
