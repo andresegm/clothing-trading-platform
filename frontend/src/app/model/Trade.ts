@@ -1,4 +1,5 @@
 export interface Trade {
+  initiatorEmail: string;
   id: number;
   status: string;
   itemId: number;
