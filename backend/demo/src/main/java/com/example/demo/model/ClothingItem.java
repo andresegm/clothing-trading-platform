@@ -32,6 +32,8 @@ public class ClothingItem {
     @NotNull(message = "Price is required")
     private Double price;
 
+    private boolean available = true;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnoreProperties("clothingItems")
@@ -117,5 +119,13 @@ public class ClothingItem {
 
     public void setDateAdded(LocalDateTime dateAdded) {
         this.dateAdded = dateAdded;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

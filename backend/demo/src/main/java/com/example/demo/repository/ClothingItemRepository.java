@@ -10,6 +10,7 @@ import java.util.List;
 public interface ClothingItemRepository extends BaseRepository<ClothingItem, Long> {
 
     @Query("SELECT c FROM ClothingItem c WHERE " +
+            "c.available = true AND " +
             "(LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%')) OR :title IS NULL) AND " +
             "(LOWER(c.brand) LIKE LOWER(CONCAT('%', :brand, '%')) OR :brand IS NULL) AND " +
             "(LOWER(c.size) LIKE LOWER(CONCAT('%', :size, '%')) OR :size IS NULL) AND " +

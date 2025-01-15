@@ -105,7 +105,13 @@ public class TradeService {
                 break;
 
             case "complete":
-                trade.setStatus("Completed");
+                if (trade.getStatus().equals("Accepted")) {
+                    trade.setStatus("Completed");
+                    trade.getItem().setAvailable(false); // Mark the item as unavailable
+                    clothingItemRepository.save(trade.getItem()); // Update the item's availability
+                } else {
+                    throw new RuntimeException("Only accepted trades can be completed.");
+                }
                 break;
 
             case "cancel":

@@ -4,13 +4,13 @@
     <div *ngIf="initiatedTrades.length === 0">No initiated trades found.</div>
     <div *ngFor="let trade of initiatedTrades" class="trade-item">
       <p>{{ trade.itemTitle }} - {{ trade.status }}</p>
-      <button
-        *ngIf="trade.status === 'Pending'"
-        (click)="cancelTrade(trade.id)"
-        mat-raised-button
-        color="warn">
-        Cancel
-      </button>
+      <div *ngIf="trade.status === 'Accepted'">
+        <button (click)="completeTrade(trade.id)" mat-raised-button color="accent">Complete</button>
+        <button (click)="cancelTrade(trade.id)" mat-raised-button color="warn">Cancel</button>
+      </div>
+      <div *ngIf="trade.status === 'Completed'">
+        <p>Trade Completed</p>
+      </div>
     </div>
   </mat-tab>
   <mat-tab label="Received Trades">
@@ -23,6 +23,7 @@
       </div>
       <div *ngIf="trade.status === 'Accepted'">
         <p>Initiator's Email: {{ trade.initiatorEmail }}</p>
+        <button (click)="completeTrade(trade.id)" mat-raised-button color="accent">Complete</button>
         <button (click)="cancelTrade(trade.id)" mat-raised-button color="warn">Cancel</button>
       </div>
       <div *ngIf="trade.status === 'Cancelled'">
