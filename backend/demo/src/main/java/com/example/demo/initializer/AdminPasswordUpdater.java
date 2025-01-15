@@ -5,13 +5,14 @@ import com.example.demo.model.UserRole;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
 
 import java.util.Optional;
 import java.util.Set;
+
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AdminPasswordUpdater implements CommandLineRunner {
@@ -26,6 +27,7 @@ public class AdminPasswordUpdater implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional // Ensures a transaction is active
     public void run(String... args) throws Exception {
         // Ensure ADMIN role exists
         UserRole adminRole = userRoleRepository.findByRoleName("ADMIN")
