@@ -71,10 +71,12 @@ public class DashboardController {
                         trade.getItem().getTitle(),
                         trade.getInitiator().getId(),
                         trade.getInitiator().getUsername(),
+                        trade.getInitiator().getEmail(),
                         trade.getReceiver().getId(),
                         trade.getReceiver().getUsername()
                 ))
                 .toList();
+
 
         // Create the response
         Map<String, Object> response = new HashMap<>();

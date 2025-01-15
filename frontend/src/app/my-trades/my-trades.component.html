@@ -22,6 +22,7 @@
         <button (click)="declineTrade(trade.id)" mat-raised-button color="warn">Decline</button>
       </div>
       <div *ngIf="trade.status === 'Accepted'">
+        <p>Initiator's Email: {{ trade.initiatorEmail }}</p>
         <button (click)="cancelTrade(trade.id)" mat-raised-button color="warn">Cancel</button>
       </div>
       <div *ngIf="trade.status === 'Cancelled'">

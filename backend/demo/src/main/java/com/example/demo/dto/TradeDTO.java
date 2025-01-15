@@ -8,12 +8,14 @@ public class TradeDTO {
     private String itemTitle;
     private Long initiatorId;
     private String initiatorUsername;
+    private String initiatorEmail;
     private Long receiverId;
     private String receiverUsername;
 
     // Constructor
     public TradeDTO(Long id, String status, Long itemId, String itemTitle,
                     Long initiatorId, String initiatorUsername,
+                    String initiatorEmail,
                     Long receiverId, String receiverUsername) {
         this.id = id;
         this.status = status;
@@ -21,6 +23,7 @@ public class TradeDTO {
         this.itemTitle = itemTitle;
         this.initiatorId = initiatorId;
         this.initiatorUsername = initiatorUsername;
+        this.initiatorEmail = initiatorEmail;
         this.receiverId = receiverId;
         this.receiverUsername = receiverUsername;
     }
@@ -72,6 +75,14 @@ public class TradeDTO {
 
     public void setInitiatorUsername(String initiatorUsername) {
         this.initiatorUsername = initiatorUsername;
+    }
+
+    public String getInitiatorEmail() {
+        return initiatorEmail;
+    }
+
+    public void setInitiatorEmail(String initiatorEmail) {
+        this.initiatorEmail = initiatorEmail;
     }
 
     public Long getReceiverId() {

@@ -151,10 +151,12 @@ public class TradeService {
                 trade.getItem() != null ? trade.getItem().getTitle() : null,
                 trade.getInitiator() != null ? trade.getInitiator().getId() : null,
                 trade.getInitiator() != null ? trade.getInitiator().getUsername() : null,
+                trade.getInitiator() != null ? trade.getInitiator().getEmail() : null, // Include email
                 trade.getReceiver() != null ? trade.getReceiver().getId() : null,
                 trade.getReceiver() != null ? trade.getReceiver().getUsername() : null
         );
     }
+
     public List<Trade> findRecentByUser(User user) {
         return tradeRepository.findTop10ByUserOrderByTradeDateDesc(user);
     }
