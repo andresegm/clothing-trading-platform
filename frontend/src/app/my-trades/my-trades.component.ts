@@ -44,6 +44,20 @@ export class MyTradesComponent implements OnInit {
     this.updateTradeStatus(tradeId, 'cancel');
   }
 
+  completeTrade(tradeId: number): void {
+    this.apiService.updateTradeStatus(tradeId, 'complete').subscribe({
+      next: (response) => {
+        this.snackBar.open('Trade marked as completed!', 'Close', { duration: 3000 });
+        this.fetchTrades(); // Refresh the list to reflect changes
+      },
+      error: (err) => {
+        console.error(err);
+        this.snackBar.open('Failed to complete the trade.', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+
   updateTradeStatus(tradeId: number, status: string): void {
     this.apiService.updateTradeStatus(tradeId, status).subscribe({
       next: (response) => {
