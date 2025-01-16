@@ -76,6 +76,13 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/clothing-items`, item, { headers });
   }
 
+  updateClothingItem(itemId: number, updatedItem: any): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put(`${this.baseUrl}/clothing-items/${itemId}`, updatedItem, { headers });
+  }
+
+
   getUserTrades(): Observable<any> {
     const token = localStorage.getItem('authToken'); // Ensure consistent token key
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);

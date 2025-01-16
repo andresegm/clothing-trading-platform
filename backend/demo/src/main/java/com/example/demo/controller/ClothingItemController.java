@@ -62,9 +62,10 @@ public class ClothingItemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClothingItemDTO> updateClothingItem(@PathVariable Long id, @RequestBody ClothingItem clothingItem) {
-        ClothingItem updatedItem = clothingItemService.updateClothingItem(id, clothingItem);
-        return ResponseEntity.ok(convertToDTO(updatedItem));
+    public ResponseEntity<ClothingItemDTO> updateClothingItem(
+            @PathVariable Long id, @Valid @RequestBody ClothingItemDTO clothingItemDTO) {
+        ClothingItem updatedItem = clothingItemService.updateClothingItem(id, clothingItemDTO);
+        return ResponseEntity.ok(clothingItemService.convertToDTO(updatedItem));
     }
 
     @DeleteMapping("/{id}")

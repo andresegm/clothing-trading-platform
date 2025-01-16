@@ -57,16 +57,20 @@ public class ClothingItemService {
                 .collect(Collectors.toList());
     }
 
-    public ClothingItem updateClothingItem(Long id, ClothingItem clothingItem) {
-        ClothingItem existingItem = fetchEntity(clothingItemRepository, id, "ClothingItem");
-        existingItem.setTitle(clothingItem.getTitle());
-        existingItem.setDescription(clothingItem.getDescription());
-        existingItem.setSize(clothingItem.getSize());
-        existingItem.setBrand(clothingItem.getBrand());
-        existingItem.setCondition(clothingItem.getCondition());
-        existingItem.setPrice(clothingItem.getPrice());
-        return clothingItemRepository.save(existingItem);
+    public ClothingItem updateClothingItem(Long id, ClothingItemDTO clothingItemDTO) {
+        ClothingItem item = clothingItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + id));
+        item.setTitle(clothingItemDTO.getTitle());
+        item.setDescription(clothingItemDTO.getDescription());
+        item.setSize(clothingItemDTO.getSize());
+        item.setBrand(clothingItemDTO.getBrand());
+        item.setCondition(clothingItemDTO.getCondition());
+        item.setPrice(clothingItemDTO.getPrice());
+        item.setAvailable(clothingItemDTO.isAvailable());
+
+        return clothingItemRepository.save(item);
     }
+
 
     public void deleteClothingItem(Long id) {
         clothingItemRepository.deleteById(id);
