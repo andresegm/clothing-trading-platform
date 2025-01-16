@@ -14,6 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatTabsModule} from "@angular/material/tabs";
 import { ItemDetailsComponent } from './item-details/item-details.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { ItemDetailsComponent } from './item-details/item-details.component';
     SearchResultsComponent,
     MyClothingItemsComponent,
     MyTradesComponent,
-    ItemDetailsComponent
+    ItemDetailsComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
