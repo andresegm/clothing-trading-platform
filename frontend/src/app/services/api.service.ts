@@ -118,4 +118,16 @@ export class ApiService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, { headers });
   }
+
+  getTradeReport(status?: string, startDate?: string, endDate?: string): Observable<any[]> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+
+    return this.http.get<any[]>(`${this.baseUrl}/trades/report`, { headers, params });
+  }
 }
