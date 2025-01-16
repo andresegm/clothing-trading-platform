@@ -1,19 +1,19 @@
 package com.example.demo.dto;
 
 public class ClothingItemDTO {
-
     private Long id;
     private String title;
     private String description;
     private String size;
     private String brand;
     private String condition;
-    private Double price;
+    private double price;
     private Long userId;
+    private boolean available; // Include the available field
 
     // Constructor
     public ClothingItemDTO(Long id, String title, String description, String size, String brand,
-                           String condition, Double price, Long userId) {
+                           String condition, double price, Long userId, boolean available) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -22,9 +22,18 @@ public class ClothingItemDTO {
         this.condition = condition;
         this.price = price;
         this.userId = userId;
+        this.available = available;
     }
 
     // Getters and Setters
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
     public Long getId() {
         return id;
     }

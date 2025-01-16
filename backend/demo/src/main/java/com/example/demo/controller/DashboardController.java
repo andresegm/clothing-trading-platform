@@ -58,7 +58,8 @@ public class DashboardController {
                         item.getBrand(),
                         item.getCondition(),
                         item.getPrice(),
-                        item.getUser().getId()
+                        item.getUser().getId(),
+                        item.isAvailable()
                 ))
                 .toList();
 

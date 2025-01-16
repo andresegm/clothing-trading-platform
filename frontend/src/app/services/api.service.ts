@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {catchError, Observable, tap} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -59,7 +59,13 @@ export class ApiService {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, { headers });
+    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, { headers }).pipe(
+      tap((response) => console.log('API response:', response)), // Log response
+      catchError((error) => {
+        console.error('API call failed:', error); // Log error
+        throw error;
+      })
+    );
   }
 
 // Add a new clothing item
@@ -105,6 +111,4 @@ export class ApiService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, { headers });
   }
-
-
 }

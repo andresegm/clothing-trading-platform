@@ -81,7 +81,8 @@ public class ClothingItemService {
                 item.getBrand(),
                 item.getCondition(),
                 item.getPrice(),
-                item.getUser().getId()
+                item.getUser().getId(),
+                item.isAvailable()
         );
     }
 

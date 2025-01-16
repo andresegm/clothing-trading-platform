@@ -30,6 +30,7 @@
   <ul>
     <li *ngFor="let item of clothingItems">
       {{ item.title }} ({{ item.size }}) - ${{ item.price }}
+      <span *ngIf="!item.available" style="color: gray;">(Unavailable)</span>
     </li>
   </ul>
 </div>
