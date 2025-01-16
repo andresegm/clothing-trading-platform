@@ -74,7 +74,8 @@ public class DashboardController {
                         trade.getInitiator().getUsername(),
                         trade.getInitiator().getEmail(),
                         trade.getReceiver().getId(),
-                        trade.getReceiver().getUsername()
+                        trade.getReceiver().getUsername(),
+                        trade.getTradeDate()
                 ))
                 .toList();
 

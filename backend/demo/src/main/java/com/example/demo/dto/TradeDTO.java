@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.time.LocalDateTime;
+
 public class TradeDTO {
 
     private Long id;
@@ -11,12 +13,13 @@ public class TradeDTO {
     private String initiatorEmail;
     private Long receiverId;
     private String receiverUsername;
+    private LocalDateTime tradeDate;
 
-    // Constructor
+    // Updated Constructor
     public TradeDTO(Long id, String status, Long itemId, String itemTitle,
                     Long initiatorId, String initiatorUsername,
-                    String initiatorEmail,
-                    Long receiverId, String receiverUsername) {
+                    String initiatorEmail, Long receiverId,
+                    String receiverUsername, LocalDateTime tradeDate) {
         this.id = id;
         this.status = status;
         this.itemId = itemId;
@@ -26,6 +29,7 @@ public class TradeDTO {
         this.initiatorEmail = initiatorEmail;
         this.receiverId = receiverId;
         this.receiverUsername = receiverUsername;
+        this.tradeDate = tradeDate;
     }
 
     // Getters and Setters
@@ -99,5 +103,13 @@ public class TradeDTO {
 
     public void setReceiverUsername(String receiverUsername) {
         this.receiverUsername = receiverUsername;
+    }
+
+    public LocalDateTime getTradeDate() {
+        return tradeDate; // Getter for tradeDate
+    }
+
+    public void setTradeDate(LocalDateTime tradeDate) {
+        this.tradeDate = tradeDate; // Setter for tradeDate
     }
 }

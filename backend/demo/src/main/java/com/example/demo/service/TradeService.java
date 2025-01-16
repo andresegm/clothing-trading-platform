@@ -159,7 +159,8 @@ public class TradeService {
                 trade.getInitiator() != null ? trade.getInitiator().getUsername() : null,
                 trade.getInitiator() != null ? trade.getInitiator().getEmail() : null, // Include email
                 trade.getReceiver() != null ? trade.getReceiver().getId() : null,
-                trade.getReceiver() != null ? trade.getReceiver().getUsername() : null
+                trade.getReceiver() != null ? trade.getReceiver().getUsername() : null,
+                trade.getTradeDate()
         );
     }
 
