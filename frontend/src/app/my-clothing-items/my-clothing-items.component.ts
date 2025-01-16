@@ -21,7 +21,8 @@ export class MyClothingItemsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userId = Number(localStorage.getItem('userId')); // Retrieve user ID
+    const userId = Number(localStorage.getItem('userId'));
+    console.log('ngOnInit called. Retrieved userId:', userId); // Log userId
     if (!userId || userId <= 0) {
       console.error('Invalid userId in localStorage:', userId);
       alert('User ID is missing or invalid. Please log in again.');
@@ -31,14 +32,14 @@ export class MyClothingItemsComponent implements OnInit {
   }
 
   fetchClothingItems(userId: number): void {
-    this.apiService.getMyClothingItems(userId).subscribe(
-      (data) => {
-        this.clothingItems = data;
+    this.apiService.getMyClothingItems(userId).subscribe({
+      next: (items) => {
+        this.clothingItems = items;
       },
-      (error) => {
+      error: (error) => {
         console.error('Error fetching clothing items:', error);
       }
-    );
+    });
   }
 
   onAddItem(): void {

@@ -72,7 +72,8 @@ public class UserController {
                         item.getBrand(),
                         item.getCondition(),
                         item.getPrice(),
-                        user.getId() // Include user ID in DTO
+                        user.getId(),
+                        item.isAvailable()// Include user ID in DTO
                 ))
                 .toList();
 
