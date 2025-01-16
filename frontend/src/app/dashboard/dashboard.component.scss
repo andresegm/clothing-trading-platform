@@ -1,0 +1,109 @@
+.dashboard {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #002c5a, #6c757d); /* Gradient background */
+  color: white; /* Adjust text color for contrast */
+  border-radius: 8px; /* Round the corners for a modern look */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .btn-logout {
+      padding: 0.5rem 1rem;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #a71d2a;
+      }
+    }
+  }
+
+  .alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .user-info {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: #343a40;
+    }
+
+    p {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      color: #94a1a8;
+
+      strong {
+        color: #007bff;
+      }
+    }
+  }
+
+  .recent-section {
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #007bff;
+    }
+
+    .items-list,
+    .trades-list {
+      list-style: none;
+      padding: 0;
+
+      li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .item-title,
+        .trade-status {
+          font-weight: bold;
+        }
+
+        .item-details,
+        .trade-item {
+          color: #6c757d;
+        }
+      }
+    }
+
+    .no-items-msg,
+    .no-trades-msg {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+  }
+}

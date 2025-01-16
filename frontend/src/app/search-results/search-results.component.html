@@ -1,35 +1,64 @@
 <app-header></app-header>
+
 <div class="search-results">
-  <h1>Search Results</h1>
+  <!-- Search Header -->
+  <div class="search-header">
+    <h1>Search Results</h1>
+    <form (ngSubmit)="applyFilters()" class="filter-form">
+      <input
+        type="text"
+        [(ngModel)]="filters.title"
+        name="title"
+        placeholder="Title"
+      />
 
-  <!-- Filter Form -->
-  <form (ngSubmit)="applyFilters()">
-    <label for="brand">Brand:</label>
-    <input type="text" id="brand" [(ngModel)]="filters.brand" name="brand" />
+      <input
+        type="text"
+        [(ngModel)]="filters.brand"
+        name="brand"
+        placeholder="Brand"
+      />
 
-    <label for="size">Size:</label>
-    <input type="text" id="size" [(ngModel)]="filters.size" name="size" />
+      <input
+        type="text"
+        [(ngModel)]="filters.size"
+        name="size"
+        placeholder="Size"
+      />
 
-    <label for="minPrice">Min Price:</label>
-    <input type="number" id="minPrice" [(ngModel)]="filters.minPrice" name="minPrice" />
+      <input
+        type="number"
+        [(ngModel)]="filters.minPrice"
+        name="minPrice"
+        placeholder="Min Price"
+      />
 
-    <label for="maxPrice">Max Price:</label>
-    <input type="number" id="maxPrice" [(ngModel)]="filters.maxPrice" name="maxPrice" />
+      <input
+        type="number"
+        [(ngModel)]="filters.maxPrice"
+        name="maxPrice"
+        placeholder="Max Price"
+      />
 
-    <button type="submit">Apply Filters</button>
-  </form>
+      <button type="submit" class="btn">Apply Filters</button>
+      <button type="button" (click)="resetFilters()" class="btn btn-secondary">Reset Filters</button>
+    </form>
 
-  <!-- Results List -->
-  <ul>
-    <li *ngFor="let item of clothingItems">
-      <a [routerLink]="['/item', item.id]">
-        {{ item.title }} - {{ item.brand }} - {{ item.size }} - ${{ item.price }}
-      </a>
-    </li>
-  </ul>
-
-
-  <div *ngIf="!clothingItems.length && searched">
-    <p>No items found.</p>
   </div>
+
+  <!-- Results Section -->
+  <div *ngIf="clothingItems.length; else noResults" class="results-grid">
+    <div class="result-card" *ngFor="let item of clothingItems">
+      <h2>{{ item.title }}</h2>
+      <p><strong>Brand:</strong> {{ item.brand }}</p>
+      <p><strong>Size:</strong> {{ item.size }}</p>
+      <p><strong>Price:</strong> ${{ item.price }}</p>
+      <a [routerLink]="['/item', item.id]" class="btn-details">View Details</a>
+    </div>
+  </div>
+
+  <!-- No Results Message -->
+  <ng-template #noResults>
+    <p class="no-results">No items found. Try adjusting your filters.</p>
+  </ng-template>
 </div>

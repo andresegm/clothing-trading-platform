@@ -1,34 +1,76 @@
 <app-header></app-header>
-<mat-tab-group>
-  <mat-tab label="Initiated Trades">
-    <div *ngIf="initiatedTrades.length === 0">No initiated trades found.</div>
-    <div *ngFor="let trade of initiatedTrades" class="trade-item">
-      <p>{{ trade.itemTitle }} - {{ trade.status }}</p>
-      <div *ngIf="trade.status === 'Accepted'">
-        <button (click)="completeTrade(trade.id)" mat-raised-button color="accent">Complete</button>
-        <button (click)="cancelTrade(trade.id)" mat-raised-button color="warn">Cancel</button>
+
+<div class="my-trades">
+  <mat-tab-group>
+    <!-- Initiated Trades Tab -->
+    <mat-tab label="Initiated Trades">
+      <div *ngIf="initiatedTrades.length === 0" class="no-trades">
+        <p>No initiated trades found.</p>
       </div>
-      <div *ngIf="trade.status === 'Completed'">
-        <p>Trade Completed</p>
+      <div *ngFor="let trade of initiatedTrades" class="trade-card">
+        <p class="trade-item-title">{{ trade.itemTitle }}</p>
+        <p class="trade-status"><strong>Status:</strong> {{ trade.status }}</p>
+        <div *ngIf="trade.status === 'Accepted'" class="trade-actions">
+          <button
+            (click)="completeTrade(trade.id)"
+            mat-raised-button
+            color="accent">
+            Complete
+          </button>
+          <button
+            (click)="cancelTrade(trade.id)"
+            mat-raised-button
+            color="warn">
+            Cancel
+          </button>
+        </div>
+        <div *ngIf="trade.status === 'Completed'" class="trade-completed">
+          <p>Trade Completed</p>
+        </div>
       </div>
-    </div>
-  </mat-tab>
-  <mat-tab label="Received Trades">
-    <div *ngIf="receivedTrades.length === 0">No received trades found.</div>
-    <div *ngFor="let trade of receivedTrades" class="trade-item">
-      <p>{{ trade.itemTitle }} - {{ trade.status }}</p>
-      <div *ngIf="trade.status === 'Pending'">
-        <button (click)="acceptTrade(trade.id)" mat-raised-button color="primary">Accept</button>
-        <button (click)="declineTrade(trade.id)" mat-raised-button color="warn">Decline</button>
+    </mat-tab>
+
+    <!-- Received Trades Tab -->
+    <mat-tab label="Received Trades">
+      <div *ngIf="receivedTrades.length === 0" class="no-trades">
+        <p>No received trades found.</p>
       </div>
-      <div *ngIf="trade.status === 'Accepted'">
-        <p>Initiator's Email: {{ trade.initiatorEmail }}</p>
-        <button (click)="completeTrade(trade.id)" mat-raised-button color="accent">Complete</button>
-        <button (click)="cancelTrade(trade.id)" mat-raised-button color="warn">Cancel</button>
+      <div *ngFor="let trade of receivedTrades" class="trade-card">
+        <p class="trade-item-title">{{ trade.itemTitle }}</p>
+        <p class="trade-status"><strong>Status:</strong> {{ trade.status }}</p>
+        <div *ngIf="trade.status === 'Pending'" class="trade-actions">
+          <button
+            (click)="acceptTrade(trade.id)"
+            mat-raised-button
+            color="primary">
+            Accept
+          </button>
+          <button
+            (click)="declineTrade(trade.id)"
+            mat-raised-button
+            color="warn">
+            Decline
+          </button>
+        </div>
+        <div *ngIf="trade.status === 'Accepted'" class="trade-actions">
+          <p>Initiator's Email: {{ trade.initiatorEmail }}</p>
+          <button
+            (click)="completeTrade(trade.id)"
+            mat-raised-button
+            color="accent">
+            Complete
+          </button>
+          <button
+            (click)="cancelTrade(trade.id)"
+            mat-raised-button
+            color="warn">
+            Cancel
+          </button>
+        </div>
+        <div *ngIf="trade.status === 'Cancelled'" class="trade-cancelled">
+          <p>Trade Cancelled</p>
+        </div>
       </div>
-      <div *ngIf="trade.status === 'Cancelled'">
-        <p>Trade Cancelled</p>
-      </div>
-    </div>
-  </mat-tab>
-</mat-tab-group>
+    </mat-tab>
+  </mat-tab-group>
+</div>

@@ -1,33 +1,49 @@
 <app-header></app-header>
+
 <div class="dashboard">
-  <h1>Dashboard</h1>
-  <button (click)="onLogout()">Logout</button>
-
-  <div *ngIf="error" class="error">{{ error }}</div>
-
-  <div *ngIf="user">
-    <h2>User Info</h2>
-    <p>Username: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h1>Welcome to Your Dashboard</h1>
+    <button class="btn-logout" (click)="onLogout()">Logout</button>
   </div>
 
-  <div>
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <!-- User Info Section -->
+  <section *ngIf="user" class="user-info">
+    <h2>Your Info</h2>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+  </section>
+
+  <!-- Recent Clothing Items Section -->
+  <section class="recent-section">
     <h2>Recent Clothing Items</h2>
-    <ul *ngIf="recentClothingItems?.length; else noItems">
+    <ul *ngIf="recentClothingItems?.length; else noItems" class="items-list">
       <li *ngFor="let item of recentClothingItems">
-        {{ item.title }} ({{ item.size }}) - ${{ item.price }}
+        <span class="item-title">{{ item.title }} </span>
+        <span class="item-details">({{ item.size }}) - ${{ item.price }}</span>
       </li>
     </ul>
-    <ng-template #noItems><p>No recent clothing items.</p></ng-template>
-  </div>
+    <ng-template #noItems>
+      <p class="no-items-msg">No recent clothing items to display.</p>
+    </ng-template>
+  </section>
 
-  <div>
+  <!-- Recent Trades Section -->
+  <section class="recent-section">
     <h2>Recent Trades</h2>
-    <ul *ngIf="recentTrades?.length; else noTrades">
+    <ul *ngIf="recentTrades?.length; else noTrades" class="trades-list">
       <li *ngFor="let trade of recentTrades">
-        {{ trade.status }}: {{ trade.itemTitle }}
+        <span class="trade-status">{{ trade.status }}: </span>
+        <span class="trade-item">{{ trade.itemTitle }}</span>
       </li>
     </ul>
-    <ng-template #noTrades><p>No recent trades.</p></ng-template>
-  </div>
+    <ng-template #noTrades>
+      <p class="no-trades-msg">No recent trades to display.</p>
+    </ng-template>
+  </section>
 </div>

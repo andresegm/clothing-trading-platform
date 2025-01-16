@@ -1,19 +1,27 @@
 <header class="site-header">
-  <nav>
-    <a routerLink="/home">Home</a>
-    <a routerLink="/dashboard">Dashboard</a>
-    <a routerLink="/search">Search</a>
-    <a routerLink="/my-clothing-items">Manage My Clothing Items</a>
-    <a routerLink="/my-trades">My Trades</a>
+  <div class="brand">
+    <a routerLink="/home" class="logo">Clothing Trade</a>
+    <span class="slogan">Trade. Connect. Refresh Your Wardrobe.</span>
+  </div>
+
+  <nav class="main-nav">
+    <a routerLink="/home" routerLinkActive="active">Home</a>
+    <a routerLink="/search" routerLinkActive="active">Search</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/my-clothing-items" routerLinkActive="active">My Clothing Items</a>
+    <a routerLink="/my-trades" routerLinkActive="active">My Trades</a>
   </nav>
 
-  <form (ngSubmit)="onSearch()">
-    <input
-      type="text"
-      placeholder="Search by title..."
-      [(ngModel)]="searchQuery"
-      name="searchQuery"
-    />
-    <button type="submit">Search</button>
-  </form>
+  <div class="header-actions">
+    <form class="search-form" (ngSubmit)="onSearch()">
+      <input
+        type="text"
+        placeholder="Search by title..."
+        [(ngModel)]="searchQuery"
+        name="searchQuery"
+      />
+      <button type="submit">Search</button>
+    </form>
+    <button (click)="onLogout()" class="btn-logout">Logout</button>
+  </div>
 </header>

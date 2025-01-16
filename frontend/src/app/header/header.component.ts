@@ -14,4 +14,9 @@ export class HeaderComponent {
   onSearch(): void {
     this.router.navigate(['/search'], { queryParams: { title: this.searchQuery } });
   }
+
+  onLogout(): void {
+    localStorage.removeItem('authToken'); // Clear the token
+    this.router.navigate(['/login']); // Redirect to login page
+  }
 }
