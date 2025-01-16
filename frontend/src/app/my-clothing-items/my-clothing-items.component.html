@@ -1,52 +1,47 @@
 <app-header></app-header>
-<div class="add-item-form">
-  <h2>Add a New Clothing Item</h2>
-  <form (ngSubmit)="onAddItem()">
-    <label for="title">Title:</label>
-    <input type="text" id="title" [(ngModel)]="newItem.title" name="title" required />
 
-    <label for="description">Description:</label>
-    <textarea id="description" [(ngModel)]="newItem.description" name="description"></textarea>
+<div class="my-clothing-items">
+  <!-- Add Item Form -->
+  <section class="add-item-form">
+    <h2>Add a New Clothing Item</h2>
+    <form (ngSubmit)="onAddItem()">
+      <input type="text" [(ngModel)]="newItem.title" name="title" placeholder="Title" required/>
+      <textarea [(ngModel)]="newItem.description" name="description" placeholder="Description"></textarea>
+      <input type="text" [(ngModel)]="newItem.size" name="size" placeholder="Size" required />
+      <input type="text" [(ngModel)]="newItem.brand" name="brand" placeholder="Brand" />
+      <input type="text" [(ngModel)]="newItem.condition" name="condition" placeholder="Condition" />
+      <input type="number" [(ngModel)]="newItem.price" name="price" placeholder="Price" required />
 
-    <label for="size">Size:</label>
-    <input type="text" id="size" [(ngModel)]="newItem.size" name="size" required />
+      <button type="submit" class="btn">Add Item</button>
+    </form>
+  </section>
 
-    <label for="brand">Brand:</label>
-    <input type="text" id="brand" [(ngModel)]="newItem.brand" name="brand" />
+  <!-- Existing Items -->
+  <section class="clothing-items-list">
+    <h2>Your Clothing Items</h2>
+    <ul>
+      <li *ngFor="let item of clothingItems" class="clothing-item">
+        <!-- Display Mode -->
+        <div *ngIf="!editMode[item.id]" class="item-display">
+          <div class="item-info">
+            <strong>{{ item.title }}</strong> ({{ item.size }}) - ${{ item.price }}
+            <span *ngIf="!item.available" class="unavailable">(Unavailable)</span>
+          </div>
+          <button *ngIf="item.available" (click)="toggleEditMode(item.id)" class="btn-edit">Edit</button>
+        </div>
 
-    <label for="condition">Condition:</label>
-    <input type="text" id="condition" [(ngModel)]="newItem.condition" name="condition" />
-
-    <label for="price">Price:</label>
-    <input type="number" id="price" [(ngModel)]="newItem.price" name="price" required />
-
-    <button type="submit">Add Item</button>
-  </form>
-</div>
-
-<!-- Existing Items List -->
-<div>
-  <h2>Your Clothing Items</h2>
-  <ul>
-    <li *ngFor="let item of clothingItems">
-      <!-- Display mode -->
-      <div *ngIf="!editMode[item.id]">
-        {{ item.title }} ({{ item.size }}) - ${{ item.price }}
-        <span *ngIf="!item.available" style="color: gray;">(Unavailable)</span>
-        <button *ngIf="item.available" (click)="toggleEditMode(item.id)">Edit</button>
-      </div>
-
-      <!-- Edit mode -->
-      <div *ngIf="editMode[item.id]">
-        <input [(ngModel)]="item.title" placeholder="Title" />
-        <textarea [(ngModel)]="item.description" placeholder="Description"></textarea>
-        <input [(ngModel)]="item.size" placeholder="Size" />
-        <input [(ngModel)]="item.brand" placeholder="Brand" />
-        <input [(ngModel)]="item.condition" placeholder="Condition" />
-        <input [(ngModel)]="item.price" type="number" placeholder="Price" />
-        <button (click)="updateClothingItem(item)">Save</button>
-        <button (click)="toggleEditMode(item.id)">Cancel</button>
-      </div>
-    </li>
-  </ul>
+        <!-- Edit Mode -->
+        <div *ngIf="editMode[item.id]" class="item-edit">
+          <input [(ngModel)]="item.title" placeholder="Title" />
+          <textarea [(ngModel)]="item.description" placeholder="Description"></textarea>
+          <input [(ngModel)]="item.size" placeholder="Size" />
+          <input [(ngModel)]="item.brand" placeholder="Brand" />
+          <input [(ngModel)]="item.condition" placeholder="Condition" />
+          <input [(ngModel)]="item.price" type="number" placeholder="Price" />
+          <button (click)="updateClothingItem(item)" class="btn-save">Save</button>
+          <button (click)="toggleEditMode(item.id)" class="btn-cancel">Cancel</button>
+        </div>
+      </li>
+    </ul>
+  </section>
 </div>

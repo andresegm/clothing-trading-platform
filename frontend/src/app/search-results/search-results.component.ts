@@ -40,4 +40,10 @@ export class SearchResultsComponent implements OnInit {
   applyFilters(): void {
     this.fetchItems();
   }
+
+  resetFilters(): void {
+    this.filters = {title: '', brand: '', size: '', minPrice: null, maxPrice: null };
+    this.fetchItems();
+  }
+
 }

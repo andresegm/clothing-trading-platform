@@ -18,8 +18,8 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'my-clothing-items', component: MyClothingItemsComponent, canActivate: [AuthGuard] },
   { path: 'search', component: SearchResultsComponent, canActivate: [AuthGuard] },
-  { path: 'my-trades', component: MyTradesComponent },
-  { path: 'item/:id', component: ItemDetailsComponent },
+  { path: 'my-trades', component: MyTradesComponent, canActivate: [AuthGuard] },
+  { path: 'item/:id', component: ItemDetailsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/login' }, // Redirect all unknown routes to the login page
 ];
 
