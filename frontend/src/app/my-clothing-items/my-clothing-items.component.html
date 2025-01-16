@@ -29,8 +29,24 @@
   <h2>Your Clothing Items</h2>
   <ul>
     <li *ngFor="let item of clothingItems">
-      {{ item.title }} ({{ item.size }}) - ${{ item.price }}
-      <span *ngIf="!item.available" style="color: gray;">(Unavailable)</span>
+      <!-- Display mode -->
+      <div *ngIf="!editMode[item.id]">
+        {{ item.title }} ({{ item.size }}) - ${{ item.price }}
+        <span *ngIf="!item.available" style="color: gray;">(Unavailable)</span>
+        <button *ngIf="item.available" (click)="toggleEditMode(item.id)">Edit</button>
+      </div>
+
+      <!-- Edit mode -->
+      <div *ngIf="editMode[item.id]">
+        <input [(ngModel)]="item.title" placeholder="Title" />
+        <textarea [(ngModel)]="item.description" placeholder="Description"></textarea>
+        <input [(ngModel)]="item.size" placeholder="Size" />
+        <input [(ngModel)]="item.brand" placeholder="Brand" />
+        <input [(ngModel)]="item.condition" placeholder="Condition" />
+        <input [(ngModel)]="item.price" type="number" placeholder="Price" />
+        <button (click)="updateClothingItem(item)">Save</button>
+        <button (click)="toggleEditMode(item.id)">Cancel</button>
+      </div>
     </li>
   </ul>
 </div>

@@ -16,6 +16,7 @@ export class MyClothingItemsComponent implements OnInit {
     condition: '',
     price: null,
   };
+  editMode: { [key: number]: boolean } = {};
 
   constructor(private apiService: ApiService) {
   }
@@ -62,5 +63,22 @@ export class MyClothingItemsComponent implements OnInit {
         alert('Failed to add clothing item. Please try again.');
       }
     );
+  }
+
+  toggleEditMode(itemId: number): void {
+    this.editMode[itemId] = !this.editMode[itemId];
+  }
+
+  updateClothingItem(item: any): void {
+    this.apiService.updateClothingItem(item.id, item).subscribe({
+      next: (updatedItem) => {
+        console.log('Item updated:', updatedItem);
+        this.editMode[item.id] = false; // Exit edit mode
+        this.fetchClothingItems(Number(localStorage.getItem('userId'))); // Refresh list
+      },
+      error: (err) => {
+        console.error('Error updating item:', err);
+      }
+    });
   }
 }
