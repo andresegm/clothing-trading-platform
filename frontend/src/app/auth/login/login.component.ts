@@ -20,15 +20,16 @@ export class LoginComponent {
       next: (response) => {
         console.log('Login successful:', response);
 
-        // Save the token and userId in localStorage
-        if (response && response.token && response.userId) {
+        // Save the token, userId, and roles in localStorage
+        if (response && response.token && response.userId && response.roles) {
           localStorage.setItem('authToken', response.token);
           localStorage.setItem('userId', response.userId.toString());
+          localStorage.setItem('roles', JSON.stringify(response.roles));
           alert('Login successful!');
           // Redirect to the dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          console.error('Missing token or userId in response:', response);
+          console.error('Missing token, userId, or roles in response:', response);
           alert('Login failed. Please try again.');
         }
       },
@@ -38,5 +39,6 @@ export class LoginComponent {
       },
     });
   }
+
 
 }

@@ -46,4 +46,7 @@
       <p class="no-trades-msg">No recent trades to display.</p>
     </ng-template>
   </section>
+  <div class="admin-actions" *ngIf="isAdmin">
+    <button (click)="generateReport()" class="btn-report">Generate Trade Report</button>
+  </div>
 </div>

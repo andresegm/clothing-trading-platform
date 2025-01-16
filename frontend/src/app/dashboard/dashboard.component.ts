@@ -12,6 +12,7 @@ export class DashboardComponent implements OnInit {
   recentClothingItems: any[] = []; // Stores recent clothing items
   recentTrades: any[] = []; // Stores recent trades
   error: string | null = null; // Error handling
+  isAdmin: boolean = false; // Tracks if the user is an admin
 
   constructor(
     private authService: AuthService,
@@ -20,6 +21,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchDashboardData();
+    this.checkAdminRole();
   }
 
   fetchDashboardData(): void {
@@ -36,6 +38,52 @@ export class DashboardComponent implements OnInit {
         console.error(err);
       }
     );
+  }
+
+  checkAdminRole(): void {
+    const roles = JSON.parse(localStorage.getItem('roles') || '[]');
+    console.log('Retrieved roles:', roles);
+    this.isAdmin = roles.includes('ADMIN');
+  }
+
+  generateReport(): void {
+    this.apiService.getTradeReport().subscribe({
+      next: (reportData) => {
+        const csvContent = this.convertToCSV(reportData);
+        this.downloadCSV(csvContent, 'trade-report.csv');
+      },
+      error: (err) => {
+        console.error('Error generating report:', err);
+        alert('Failed to generate report. Please try again.');
+      },
+    });
+  }
+
+  private convertToCSV(data: any[]): string {
+    const headers = ['ID', 'Status', 'Initiator', 'Receiver', 'Item', 'Date'];
+    const rows = data.map((row) => [
+      row.id,
+      row.status,
+      row.initiatorUsername,
+      row.receiverUsername,
+      row.itemTitle,
+      row.tradeDate,
+    ]);
+    return [headers, ...rows]
+      .map((row) => row.join(','))
+      .join('\n');
+  }
+
+  private downloadCSV(content: string, filename: string): void {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   onLogout(): void {
