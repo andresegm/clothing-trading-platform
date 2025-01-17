@@ -27,31 +27,33 @@ public class AdminPasswordUpdater implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional // Ensures a transaction is active
-    public void run(String... args) throws Exception {
+    @Transactional
+    public void run(String... args) {
+        String adminUsername = System.getenv("ADMIN_USERNAME");
+        String adminPassword = System.getenv("ADMIN_PASSWORD");
+
+        if (adminUsername == null || adminPassword == null) {
+            System.out.println("WARNING: Admin credentials not set. Skipping admin creation.");
+            return;
+        }
+
         // Ensure ADMIN role exists
         UserRole adminRole = userRoleRepository.findByRoleName("ADMIN")
                 .orElseGet(() -> userRoleRepository.save(new UserRole("ADMIN")));
 
         // Check if admin user exists
-        Optional<User> adminOptional = userRepository.findByUsername("admin");
+        Optional<User> adminOptional = userRepository.findByUsername(adminUsername);
         if (adminOptional.isEmpty()) {
             // Create admin user
             User admin = new User();
-            admin.setUsername("admin");
-            admin.setEmail("admin@example.com");
-            admin.setPassword(passwordEncoder.encode("admin123")); // Default password
+            admin.setUsername(adminUsername);
+            admin.setEmail(adminUsername + "@example.com"); // Default email
+            admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRoles(Set.of(adminRole));
             userRepository.save(admin);
-            System.out.println("Admin user created with default password: admin123");
+            System.out.println("Admin user created with username: " + adminUsername);
         } else {
-            User admin = adminOptional.get();
-            // Update password if not already hashed
-            if (!admin.getPassword().startsWith("$2a$")) {
-                admin.setPassword(passwordEncoder.encode("admin123"));
-                userRepository.save(admin);
-                System.out.println("Admin password updated to default password: admin123");
-            }
+            System.out.println("Admin user already exists. No changes made.");
         }
     }
 }
