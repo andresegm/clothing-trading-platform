@@ -61,3 +61,5 @@ public class SecurityConfig {
         return source;
     }
 }
+
+//this configuration worked for both the frontend and backend from "http://clothingtradingplatform.com"
