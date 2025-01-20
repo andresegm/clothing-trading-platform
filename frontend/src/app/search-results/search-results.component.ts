@@ -18,6 +18,7 @@ export class SearchResultsComponent implements OnInit {
     size: '',
     minPrice: null,
     maxPrice: null,
+    condition: ''
   };
 
   constructor(private route: ActivatedRoute, private apiService: ApiService) {}
@@ -38,11 +39,19 @@ export class SearchResultsComponent implements OnInit {
   }
 
   applyFilters(): void {
+    // Validate filter consistency
+    if (this.filters.minPrice && this.filters.maxPrice && this.filters.minPrice > this.filters.maxPrice) {
+      alert('Min Price cannot be greater than Max Price.');
+      return;
+    }
+
+    // Apply filters if valid
     this.fetchItems();
   }
 
+
   resetFilters(): void {
-    this.filters = {title: '', brand: '', size: '', minPrice: null, maxPrice: null };
+    this.filters = {title: '', brand: '', size: '', minPrice: null, maxPrice: null, condition: '' };
     this.fetchItems();
   }
 
