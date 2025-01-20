@@ -4,15 +4,97 @@
   <!-- Add Item Form -->
   <section class="add-item-form">
     <h2>Add a New Clothing Item</h2>
-    <form (ngSubmit)="onAddItem()">
-      <input type="text" [(ngModel)]="newItem.title" name="title" placeholder="Title" required/>
-      <textarea [(ngModel)]="newItem.description" name="description" placeholder="Description"></textarea>
-      <input type="text" [(ngModel)]="newItem.size" name="size" placeholder="Size" required />
-      <input type="text" [(ngModel)]="newItem.brand" name="brand" placeholder="Brand" />
-      <input type="text" [(ngModel)]="newItem.condition" name="condition" placeholder="Condition" />
-      <input type="number" [(ngModel)]="newItem.price" name="price" placeholder="Price" required />
+    <form #addItemForm="ngForm" (ngSubmit)="onAddItem()">
+      <!-- Title -->
+      <input
+        type="text"
+        [(ngModel)]="newItem.title"
+        name="title"
+        placeholder="Title"
+        required
+        minlength="3"
+        maxlength="50"
+        #titleInput="ngModel"
+      />
+      <small *ngIf="titleInput.invalid && titleInput.touched" class="error">
+        <span *ngIf="titleInput.errors?.['required']">Title is required.</span>
+        <span *ngIf="titleInput.errors?.['minlength']">Must be at least 3 characters.</span>
+        <span *ngIf="titleInput.errors?.['maxlength']">Cannot exceed 50 characters.</span>
+      </small>
 
-      <button type="submit" class="btn">Add Item</button>
+      <!-- Description -->
+      <textarea
+        [(ngModel)]="newItem.description"
+        name="description"
+        placeholder="Description">
+      </textarea>
+
+      <!-- Size -->
+      <input
+        type="text"
+        [(ngModel)]="newItem.size"
+        name="size"
+        placeholder="Size"
+        required
+        minlength="1"
+        maxlength="10"
+        #sizeInput="ngModel"
+      />
+      <small *ngIf="sizeInput.invalid && sizeInput.touched" class="error">
+        <span *ngIf="sizeInput.errors?.['required']">Size is required.</span>
+        <span *ngIf="sizeInput.errors?.['maxlength']">Cannot exceed 10 characters.</span>
+      </small>
+
+      <!-- Brand -->
+      <input
+        type="text"
+        [(ngModel)]="newItem.brand"
+        name="brand"
+        placeholder="Brand"
+        minlength="2"
+        maxlength="30"
+        #brandInput="ngModel"
+      />
+      <small *ngIf="brandInput.invalid && brandInput.touched" class="error">
+        <span *ngIf="brandInput.errors?.['minlength']">Must be at least 2 characters.</span>
+        <span *ngIf="brandInput.errors?.['maxlength']">Cannot exceed 30 characters.</span>
+      </small>
+
+      <!-- Price -->
+      <input
+        type="number"
+        [(ngModel)]="newItem.price"
+        name="price"
+        placeholder="Price"
+        required
+        min="1"
+        max="10000"
+        #priceInput="ngModel"
+      />
+      <small *ngIf="priceInput.invalid && priceInput.touched" class="error">
+        <span *ngIf="priceInput.errors?.['required']">Price is required.</span>
+        <span *ngIf="priceInput.errors?.['min']">Must be at least 1.</span>
+        <span *ngIf="priceInput.errors?.['max']">Cannot exceed 10,000.</span>
+      </small>
+
+      <!-- Condition Dropdown -->
+      <select
+        [(ngModel)]="newItem.condition"
+        name="condition"
+        required
+        #conditionInput="ngModel">
+        <option value="" disabled selected>Select Condition</option>
+        <option value="Quite used">Quite used</option>
+        <option value="Fair">Fair</option>
+        <option value="Good">Good</option>
+        <option value="Like new">Like new</option>
+        <option value="Brand new">Brand new</option>
+      </select>
+      <small *ngIf="conditionInput.invalid && conditionInput.touched" class="error">
+        <span *ngIf="conditionInput.errors?.['required']">Condition is required.</span>
+      </small>
+
+      <button type="submit" class="btn" [disabled]="addItemForm.invalid">Add Item</button>
     </form>
   </section>
 
@@ -32,12 +114,19 @@
 
         <!-- Edit Mode -->
         <div *ngIf="editMode[item.id]" class="item-edit">
-          <input [(ngModel)]="item.title" placeholder="Title" />
+          <input [(ngModel)]="item.title" placeholder="Title" required minlength="3" maxlength="50" />
           <textarea [(ngModel)]="item.description" placeholder="Description"></textarea>
-          <input [(ngModel)]="item.size" placeholder="Size" />
-          <input [(ngModel)]="item.brand" placeholder="Brand" />
-          <input [(ngModel)]="item.condition" placeholder="Condition" />
-          <input [(ngModel)]="item.price" type="number" placeholder="Price" />
+          <input [(ngModel)]="item.size" placeholder="Size" required minlength="1" maxlength="10" />
+          <input [(ngModel)]="item.brand" placeholder="Brand" minlength="2" maxlength="30" />
+          <!-- Condition Dropdown -->
+          <select [(ngModel)]="item.condition" required>
+            <option value="Quite used">Quite used</option>
+            <option value="Fair">Fair</option>
+            <option value="Good">Good</option>
+            <option value="Like new">Like new</option>
+            <option value="Brand new">Brand new</option>
+          </select>
+          <input [(ngModel)]="item.price" type="number" placeholder="Price" required min="1" max="10000" />
           <button (click)="updateClothingItem(item)" class="btn-save">Save</button>
           <button (click)="toggleEditMode(item.id)" class="btn-cancel">Cancel</button>
         </div>
@@ -45,3 +134,4 @@
     </ul>
   </section>
 </div>
+

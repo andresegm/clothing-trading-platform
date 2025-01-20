@@ -1,4 +1,5 @@
-/* package com.example.demo.config;
+/*
+package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Allow all paths
-                        .allowedOrigins("http://18.118.144.41") // Updated frontend origin
+                        .allowedOrigins("http://localhost:4200") // Frontend origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // HTTP methods
                         .allowedHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin") // Allow all headers
                         .allowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
@@ -22,4 +23,4 @@ public class WebConfig {
         };
     }
 }
- */
+*/
