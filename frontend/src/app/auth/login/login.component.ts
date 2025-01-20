@@ -14,22 +14,28 @@ export class LoginComponent {
   constructor(private apiService: ApiService, private router: Router) {}
 
   onSubmit() {
+    if (this.username.length < 3 || this.username.length > 20) {
+      alert('Username must be between 3 and 20 characters.');
+      return;
+    }
+
+    if (this.password.length < 8) {
+      alert('Password must be at least 8 characters long.');
+      return;
+    }
+
     const loginData = { username: this.username, password: this.password };
 
     this.apiService.login(loginData).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-
-        // Save the token, userId, and roles in localStorage
         if (response && response.token && response.userId && response.roles) {
           localStorage.setItem('authToken', response.token);
           localStorage.setItem('userId', response.userId.toString());
           localStorage.setItem('roles', JSON.stringify(response.roles));
           alert('Login successful!');
-          // Redirect to the dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          console.error('Missing token, userId, or roles in response:', response);
           alert('Login failed. Please try again.');
         }
       },
@@ -39,6 +45,4 @@ export class LoginComponent {
       },
     });
   }
-
-
 }

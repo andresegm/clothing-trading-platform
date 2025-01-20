@@ -44,19 +44,38 @@ export class MyClothingItemsComponent implements OnInit {
   }
 
   onAddItem(): void {
-    const userId = Number(localStorage.getItem('userId'));
-    if (!userId || userId <= 0) {
-      alert('User ID is missing or invalid. Please log in again.');
+    if (!this.newItem.title || this.newItem.title.length < 3) {
+      alert('Title must be at least 3 characters.');
+      return;
+    }
+    if (!this.newItem.size) {
+      alert('Size is required.');
+      return;
+    }
+    if (!this.newItem.condition) {
+      alert('Condition is required.');
+      return;
+    }
+    if (!this.newItem.price || this.newItem.price < 1 || this.newItem.price > 10000) {
+      alert('Price must be between 1 and 10,000.');
       return;
     }
 
-    const itemWithUserId = {...this.newItem, userId};
+    const userId = Number(localStorage.getItem('userId'));
+    const itemWithUserId = { ...this.newItem, userId };
 
     this.apiService.addClothingItem(itemWithUserId).subscribe(
       () => {
         alert('Clothing item added successfully!');
         this.fetchClothingItems(userId); // Refresh the list
-        this.newItem = {title: '', description: '', size: '', brand: '', condition: '', price: null}; // Reset form
+        this.newItem = {
+          title: '',
+          description: '',
+          size: '',
+          brand: '',
+          condition: '',
+          price: null,
+        }; // Reset form
       },
       (error) => {
         console.error('Error adding clothing item:', error);
@@ -64,6 +83,7 @@ export class MyClothingItemsComponent implements OnInit {
       }
     );
   }
+
 
   toggleEditMode(itemId: number): void {
     this.editMode[itemId] = !this.editMode[itemId];
