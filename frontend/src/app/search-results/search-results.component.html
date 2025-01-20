@@ -4,46 +4,95 @@
   <!-- Search Header -->
   <div class="search-header">
     <h1>Search Results</h1>
-    <form (ngSubmit)="applyFilters()" class="filter-form">
+    <form #filterForm="ngForm" (ngSubmit)="applyFilters()" class="filter-form">
+      <!-- Title -->
       <input
         type="text"
         [(ngModel)]="filters.title"
         name="title"
         placeholder="Title"
+        minlength="3"
+        maxlength="50"
+        #titleInput="ngModel"
       />
+      <small *ngIf="titleInput.invalid && titleInput.touched" class="error">
+        <span *ngIf="titleInput.errors?.['minlength']">Must be at least 3 characters.</span>
+        <span *ngIf="titleInput.errors?.['maxlength']">Cannot exceed 50 characters.</span>
+      </small>
 
+      <!-- Brand -->
       <input
         type="text"
         [(ngModel)]="filters.brand"
         name="brand"
         placeholder="Brand"
+        minlength="2"
+        maxlength="30"
+        #brandInput="ngModel"
       />
+      <small *ngIf="brandInput.invalid && brandInput.touched" class="error">
+        <span *ngIf="brandInput.errors?.['minlength']">Must be at least 2 characters.</span>
+        <span *ngIf="brandInput.errors?.['maxlength']">Cannot exceed 30 characters.</span>
+      </small>
 
+      <!-- Size -->
       <input
         type="text"
         [(ngModel)]="filters.size"
         name="size"
         placeholder="Size"
+        minlength="1"
+        maxlength="10"
+        #sizeInput="ngModel"
       />
+      <small *ngIf="sizeInput.invalid && sizeInput.touched" class="error">
+        <span *ngIf="sizeInput.errors?.['minlength']">Size must be at least 1 character.</span>
+        <span *ngIf="sizeInput.errors?.['maxlength']">Cannot exceed 10 characters.</span>
+      </small>
 
+      <!-- Min Price -->
       <input
         type="number"
         [(ngModel)]="filters.minPrice"
         name="minPrice"
         placeholder="Min Price"
+        min="1"
+        #minPriceInput="ngModel"
       />
+      <small *ngIf="minPriceInput.invalid && minPriceInput.touched" class="error">
+        <span *ngIf="minPriceInput.errors?.['min']">Must be at least 1.</span>
+      </small>
 
+      <!-- Max Price -->
       <input
         type="number"
         [(ngModel)]="filters.maxPrice"
         name="maxPrice"
         placeholder="Max Price"
+        min="1"
+        #maxPriceInput="ngModel"
       />
+      <small *ngIf="maxPriceInput.invalid && maxPriceInput.touched" class="error">
+        <span *ngIf="maxPriceInput.errors?.['min']">Must be at least 1.</span>
+      </small>
 
-      <button type="submit" class="btn">Apply Filters</button>
+      <!-- Condition Dropdown -->
+      <select
+        [(ngModel)]="filters.condition"
+        name="condition"
+        #conditionInput="ngModel">
+        <option value="" disabled selected>Select Condition</option>
+        <option value="Quite used">Quite used</option>
+        <option value="Fair">Fair</option>
+        <option value="Good">Good</option>
+        <option value="Like new">Like new</option>
+        <option value="Brand new">Brand new</option>
+      </select>
+
+      <!-- Buttons -->
+      <button type="submit" class="btn" [disabled]="filterForm.invalid">Apply Filters</button>
       <button type="button" (click)="resetFilters()" class="btn btn-secondary">Reset Filters</button>
     </form>
-
   </div>
 
   <!-- Results Section -->
@@ -52,6 +101,7 @@
       <h2>{{ item.title }}</h2>
       <p><strong>Brand:</strong> {{ item.brand }}</p>
       <p><strong>Size:</strong> {{ item.size }}</p>
+      <p><strong>Condition:</strong> {{ item.condition }}</p>
       <p><strong>Price:</strong> ${{ item.price }}</p>
       <a [routerLink]="['/item', item.id]" class="btn-details">View Details</a>
     </div>
