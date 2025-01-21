@@ -1,0 +1,44 @@
+Setting up the Backend for deployment:
+- On your terminal, navigate to the backend/demo folder
+- Set up the app's database environment locally by executing each of the following commands individually:
+        export DB_HOST=clothing-platform-db.c1swwoi6yvmx.us-east-2.rds.amazonaws.com
+        export DB_PORT=5432
+        export DB_NAME=clothing-platform-db
+        export DB_USERNAME= (redacted for security purposes)
+        export DB_PASSWORD= (redacted for security purposes)
+
+- Execute "mvn clean package" on your terminal
+- Upload the newly created JAR file to the EC2 instance (created during the 'mvn clean package' step):
+    On your terminal, execute the command "scp -i ~/.ssh/EC2CTPKey.pem target/demo-0.0.1-SNAPSHOT.jar ec2-user@18.118.144.41:/home/ec2-user/"
+    (please note you must have obtained the EC2CTPKey private key from the administrator and moved it into your local ssh directory).
+
+Setting up the Frontend for deployment:
+- On your terminal, navigate to the frontend folder
+- Execute "ng build --configuration production" on your terminal
+- Upload the frontend files to the EC2 instance:
+    On your terminal, execute the command "scp -i ~/.ssh/EC2CTPKey.pem -r dist/frontend-app/* ec2-user@18.118.144.41:/usr/share/nginx/html"
+    (please note you must have obtained the EC2CTPKey private key from the administrator and moved it into your local ssh directory).
+
+Deploying the Backend inside the EC2 instance:
+- On your terminal, execute the command "ssh -i ~/.ssh/EC2CTPKey.pem ec2-user@18.118.144.41"
+ (please note you must have obtained the EC2CTPKey private key from the administrator and moved it into your local ssh directory).
+- Set the Database environment by running the script within the EC2 instance: "source ./run-backend.sh"
+- Run the recently uploaded JAR file: nohup java -jar demo-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
+    This will keep the backend running in the background
+
+Deploying the Frontend inside the EC2 instance:
+- Verify Nginx configuration is error-free: execute "sudo nginx -t"
+- If any errors, you can correct these after executing "sudo nano /etc/nginx/nginx.conf", to Save: Ctrl+O, enter, Ctrl+X
+- Execute "sudo systemctl restart nginx" (must already connected to the EC2 instance)
+
+To make modifications to the frontend or backend:
+- While connected to the EC2 instance, execute "sudo kill -9 <PID>"
+(replace <PID> with the actual process ID of the nohup Java process, which  can be found executing "ps aux | grep java")
+- Make changes locally (ideally on the deployed branch, "secure-env-vars", then follow the above deployment steps.
+
+Connecting to and Querying the Database:
+- On your local terminal execute "psql -h clothing-platform-db.c1swwoi6yvmx.us-east-2.rds.amazonaws.com -U <DB_USERNAME> -d clothing-platform-db"
+ (Please note, you must obtain the actual DB_USERNAME from administrator, as well as DB_PASSWORD as you will be prompted for this upon executing the above command)
+
+Access the application on your web browser:
+http://clothingtradingplatform.com
