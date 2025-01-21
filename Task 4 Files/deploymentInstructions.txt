@@ -40,5 +40,14 @@ Connecting to and Querying the Database:
 - On your local terminal execute "psql -h clothing-platform-db.c1swwoi6yvmx.us-east-2.rds.amazonaws.com -U <DB_USERNAME> -d clothing-platform-db"
  (Please note, you must obtain the actual DB_USERNAME from administrator, as well as DB_PASSWORD as you will be prompted for this upon executing the above command)
 
+ Troubleshooting Backend Issues:
+ - Check logs: execute 'tail -f backend.log' (from within the EC2 instance)
+
+ Troubleshooting Frontend Issues:
+ - Check browser developer tools for errors
+ - Check frontend facing error messages
+ - Check Nginx Logs: execute 'sudo tail -f /var/log/nginx/access.log' (from within the EC2 instance)
+
+
 Access the application on your web browser:
 http://clothingtradingplatform.com
