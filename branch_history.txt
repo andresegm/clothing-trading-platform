@@ -1,3 +1,5 @@
+* 0c9d88f added troubleshooting to deployment instructions text file
+* 739e2bb Updated git branch history log
 * 8ebbc8d Added 'Task 4 Files' directory and deployment instructions text file inside of the new directory
 * a850bc7 added user guide to readme
 * 4734fbc added git commit history log
