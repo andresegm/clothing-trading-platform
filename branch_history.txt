@@ -1,3 +1,5 @@
+* 1a6440f Added Gitlab repository graph screenshots and Repository Zip file (too large to upload on Submission)
+* eadfdfa Updated git branch history log
 * 0c9d88f added troubleshooting to deployment instructions text file
 * 739e2bb Updated git branch history log
 * 8ebbc8d Added 'Task 4 Files' directory and deployment instructions text file inside of the new directory
