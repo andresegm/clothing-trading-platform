@@ -1,0 +1,170 @@
+package com.example.demo.service;
+
+import com.example.demo.dto.TradeDTO;
+import com.example.demo.model.ClothingItem;
+import com.example.demo.model.Trade;
+import com.example.demo.model.User;
+import com.example.demo.repository.ClothingItemRepository;
+import com.example.demo.repository.TradeRepository;
+import com.example.demo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class TradeService {
+
+    @Autowired
+    private TradeRepository tradeRepository;
+
+    @Autowired
+    private ClothingItemRepository clothingItemRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public Trade saveTrade(Trade trade) {
+        return tradeRepository.save(trade);
+    }
+
+    public Trade updateTrade(Long id, Trade trade) {
+        Trade existingTrade = tradeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+        existingTrade.setStatus(trade.getStatus());
+        return tradeRepository.save(existingTrade);
+    }
+
+    public List<TradeDTO> getAllTrades() {
+        return tradeRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public TradeDTO getTradeById(Long id) {
+        Trade trade = tradeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+        return convertToDTO(trade);
+    }
+
+    public Trade getTradeByIdEntity(Long id) {
+        return tradeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trade not found with id: " + id));
+    }
+
+    public void deleteTrade(Long id) {
+        tradeRepository.deleteById(id);
+    }
+
+    public Trade createTrade(TradeDTO tradeDTO, String initiatorUsername) {
+        User initiator = userRepository.findByUsername(initiatorUsername)
+                .orElseThrow(() -> new RuntimeException("User not found: " + initiatorUsername));
+
+        ClothingItem item = clothingItemRepository.findById(tradeDTO.getItemId())
+                .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + tradeDTO.getItemId()));
+
+        if (item.getUser().equals(initiator)) {
+            throw new RuntimeException("Cannot trade your own item.");
+        }
+
+        Trade trade = new Trade();
+        trade.setStatus("Pending");
+        trade.setItem(item);
+        trade.setInitiator(initiator);
+        trade.setReceiver(item.getUser());
+        trade.setTradeDate(LocalDateTime.now());
+
+        return tradeRepository.save(trade);
+    }
+
+    public Trade updateTradeStatus(Long id, String action, String username) {
+        Trade trade = getTradeByIdEntity(id);
+
+        if (!trade.getInitiator().getUsername().equals(username) &&
+                !trade.getReceiver().getUsername().equals(username)) {
+            throw new RuntimeException("User not authorized to update this trade.");
+        }
+
+        switch (action.toLowerCase()) {
+            case "accept":
+                if (trade.getReceiver().getUsername().equals(username)) {
+                    trade.setStatus("Accepted");
+                } else {
+                    throw new RuntimeException("Only the receiver can accept trades.");
+                }
+                break;
+
+            case "decline":
+                if (trade.getReceiver().getUsername().equals(username)) {
+                    trade.setStatus("Cancelled");
+                } else {
+                    throw new RuntimeException("Only the receiver can decline trades.");
+                }
+                break;
+
+            case "complete":
+                if (trade.getStatus().equals("Accepted")) {
+                    trade.setStatus("Completed");
+                    trade.getItem().setAvailable(false); // Mark the item as unavailable
+                    clothingItemRepository.save(trade.getItem()); // Update the item's availability
+                } else {
+                    throw new RuntimeException("Only accepted trades can be completed.");
+                }
+                break;
+
+            case "cancel":
+                trade.setStatus("Cancelled");
+                break;
+
+            default:
+                throw new RuntimeException("Invalid action.");
+        }
+
+        return tradeRepository.save(trade);
+    }
+
+    public List<TradeDTO> generateTradeReport(String status, LocalDateTime startDate, LocalDateTime endDate) {
+        return tradeRepository.findAll().stream()
+                .filter(trade -> (status == null || trade.getStatus().equalsIgnoreCase(status)) &&
+                        (startDate == null || !trade.getTradeDate().isBefore(startDate)) &&
+                        (endDate == null || !trade.getTradeDate().isAfter(endDate)))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<TradeDTO> getTradesForUser(String username) {
+        // Fetch the user entity by username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        // Fetch trades where the user is either the initiator or receiver
+        List<Trade> trades = tradeRepository.findTradesForUser(user);
+
+        // Convert trades to DTOs
+        return trades.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    public TradeDTO convertToDTO(Trade trade) {
+        return new TradeDTO(
+                trade.getId(),
+                trade.getStatus(),
+                trade.getItem() != null ? trade.getItem().getId() : null,
+                trade.getItem() != null ? trade.getItem().getTitle() : null,
+                trade.getInitiator() != null ? trade.getInitiator().getId() : null,
+                trade.getInitiator() != null ? trade.getInitiator().getUsername() : null,
+                trade.getInitiator() != null ? trade.getInitiator().getEmail() : null, // Include email
+                trade.getReceiver() != null ? trade.getReceiver().getId() : null,
+                trade.getReceiver() != null ? trade.getReceiver().getUsername() : null,
+                trade.getTradeDate()
+        );
+    }
+
+    public List<Trade> findRecentByUser(User user) {
+        return tradeRepository.findTop10ByUserOrderByTradeDateDesc(user);
+    }
+}
