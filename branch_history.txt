@@ -1,0 +1,74 @@
+* 1a6440f Added Gitlab repository graph screenshots and Repository Zip file (too large to upload on Submission)
+* eadfdfa Updated git branch history log
+* 0c9d88f added troubleshooting to deployment instructions text file
+* 739e2bb Updated git branch history log
+* 8ebbc8d Added 'Task 4 Files' directory and deployment instructions text file inside of the new directory
+* a850bc7 added user guide to readme
+* 4734fbc added git commit history log
+* 736d05d Add robust input validation for login, register, my clothing items, and search results components
+* caa2e9a Saved State for working configuration - re-start to this point if adding SSL breaks the app again
+* 35b3329 added domain name to CORS allowed origins on SecurityConfig.java
+* a44c7a3 commented out WebConfig to test whether API calls still function without it
+* 12adc65 rolled back to point where frontend API calls worked using http://18.118.144.41 (new instance)
+* cb28b5a rolled back to point where frontend API calls worked using http://3.137.166.96 instead of clothingplatform.com
+* 1961d74 Updated frontend origin on Webconfig
+* dc581b7 API Service: update API baseUrl to use environment configuration
+* 89d5700 refactor: replace hardcoded admin credentials with environment variables in AdminPasswordUpdater
+* 9317792 Update application properties to configure AWS RDS database connection
+* f1b2b42 Checked out new branch for  deploymeny. Updated application.properties to use environment variables for database connection
+| * e412580 Add Testing Dependencies (Junit and Mockito), Write testLoginWithNoPassword and testLoginWithCorrectCredentials tests on AuthControllerTest.java, and tested
+| * 416338b Add robust input validation for login, register, my clothing items, and search results components
+| * d85e69f refactor: replace hardcoded admin credentials with environment variables in AdminPasswordUpdater
+|/  
+* 5cbab79 Add admin trade report generation and role-based access handling
+* 31aba7b Add admin trade report generation and role-based access handling
+* bafdf63 Enhance UX/UI across components and add auth guards
+* 765e38d Add HomeComponent with routing and initial styling
+* 5c05749 Add edit functionality for clothing items with availability restrictions
+* 9824a14 Add 'available' field to DTOs and improve handling of My Clothing Items
+* 4122055 Add trade completion functionality and mark clothing items as unavailable
+* b175958 Add initiator email to trade functionality
+* ce44489 Implement item details view and improve trade functionality
+* 4f0d5be Fix transactional issue in AdminPasswordUpdater
+* 04a6d9c Add My Trades page and update trade status functionality
+* 9faa49e Integrate trade functionality with role-based access control
+* 97b6679 added header component to my clothing items page
+* d24784f Add functionality to create new clothing items on My Clothing Items page - Updated my-clothing-items.component.html to include a form for adding new clothing items. - Updated my-clothing-items.component.ts to handle form submissions and integrate with the addClothingItem API. - Ensured new items are added to the database and displayed correctly on the frontend.
+* 3db504d Implement My Clothing Items page and enhance user-specific item retrieval: - Created MyClothingItemsComponent to display logged-in user's clothing items. - Added getMyClothingItems and addClothingItem methods in ApiService to handle clothing item retrieval and addition. - Updated AppRoutingModule to include a route for the My Clothing Items page with AuthGuard protection. - Enhanced LoginComponent to store userId in localStorage upon login for user-specific actions. - Added 'My Clothing Items' link to the header for navigation. - Updated SecurityConfig:   - Restricted /api/users/** endpoints to roles USER and ADMIN.   - Ensured authentication for all other endpoints. - Enhanced DummyTokenAuthenticationFilter to assign ROLE_USER to authenticated users. - Updated AuthController to include userId in the login response for frontend integration.
+* 7f9adf4 Implement global search bar and search results page functionality - Added HeaderComponent with a global search bar for navigating to the search results page. - Created SearchResultsComponent to display clothing items with additional filtering options (brand, size, price range). - Updated AppRoutingModule to include routes for the search results page and adjusted default/wildcard routes to redirect to the dashboard. - Integrated HeaderComponent into DashboardComponent to make the search bar accessible. - Added FormsModule to AppModule to support form controls in HeaderComponent and SearchResultsComponent. - Updated ApiService to exclude empty query parameters when calling the clothing-items filter API. - Ensured proper handling of query parameters in the SearchResultsComponent for initial and refined searches.
+* 23bd6c7 Implement dashboard functionality and secure API endpoints with dummy token authentication
+* 851b4ce Implement user-specific dashboard functionality with recent trades and clothing items
+* 0781229 Add logout functionality to the dashboard
+* c656ed1 Add dashboard and route protection using AuthGuard
+* 75f00d7 Integrate login functionality between frontend and backend
+* 6315ad6 Add frontend to backend integration for registration and add CORS support:
+* d0de293 Add authentication feature with login and register endpoints
+* 5a3dabd Add authentication module and services for login and registration, update app routing and layout
+* 1bcc8d6 Update Angular project configuration and dependencies for compatibility
+* ee2f183 Add frontend folder for Angular project setup
+* 9a36513 Restructured project folders: created 'backend' and 'frontend' directories, moved 'demo' into 'backend'. Updated project structure to align with frontend-backend architecture.
+* 2d656e0 Add public user registration and enhance security configuration
+* 35f49a4 Enable Spring Security and implement authentication features
+* 419b6ab Refactor UserRoleController to return user-role mappings and add RoleController for role management
+* 1d6d06a Refactor User and Role entities, update UserService, and add Role initialization logic
+*   fc39a56 Merge branch 'working' of https://gitlab.com/wgu-gitlab-environment/student-repos/agodo11/d424-software-engineering-capstone into working Resolved divergence by merging updates from the remote 'working' branch.
+|\  
+| * f5e34c1 Implement User Roles Feature with Associated Model, Service, Controller, and Repository
+* | adae70d Implement User Roles Feature with Associated Model, Service, Controller, and Repository
+|/  
+* 1bb50bf Add Trade Report Feature:
+* 20dcc33 Implement enhanced filtering for Clothing Items: - Updated ClothingItemRepository to include a filter method with query parameters for title, brand, size, condition, and price range. - Modified ClothingItemController to add a new '/filter' endpoint for filtering items based on the provided parameters. - Updated ClothingItemService to integrate the filtering logic and convert results to DTOs. - Fixed Hibernate query issues by flipping conditions to resolve type inference errors. - Added debug logging for improved traceability during filtering operations.
+* 58d1c36 Introduced BaseRepository and refactored repositories and services to utilize polymorphism and inheritance
+* 590873a Enhance Trade API: - Updated TradeService.updateTrade to fetch related entities (item, initiator, receiver) before saving, ensuring complete data integrity. - Improved TradeController's PUT endpoint response by leveraging updated service logic. - Validated associations to eliminate null values in TradeDTO responses.
+* 9c2b668 Enhance Trade API with improved handling and validation: - Updated TradeController to return fully populated TradeDTOs for all endpoints (GET, POST, PUT). - Enhanced TradeService.saveTrade to validate and fetch related entities (ClothingItem, Initiator, Receiver) before saving. - Injected ClothingItemRepository and UserRepository into TradeService to fetch linked entities. - Improved TradeDTO to ensure proper encapsulation of response data, avoiding nested object references. - Modified Trade entity with @JsonIgnoreProperties to prevent serialization issues and circular references. - Ensured consistency in Trade API responses across all operations to meet expected user experience.
+* 1113158 feat: Implement DTOs and Refactor Controllers and Services for Better Data Handling
+* 4cd31f2 Implement validation and error handling for User and ClothingItem entities: - Added validation annotations (@NotBlank, @NotNull, @Email, @Size) to enforce data integrity in User and ClothingItem models. - Updated UserController and ClothingItemController to validate incoming requests using @Valid. - Created GlobalExceptionHandler to handle validation errors and provide detailed error messages in API responses. - Enhanced error responses with custom error codes for each validation failure. - Implemented logging in GlobalExceptionHandler to capture validation errors and runtime exceptions in application logs. - Configured logging to write errors to 'logs/application.log' for easier debugging. - Updated application.properties to enable detailed logging. - Modified pom.xml to include validation dependencies for Jakarta Bean Validation API and Spring Boot validation.
+* 48a8ea9 Add CRUD functionality for User and ClothingItem entities; Comment out security for API testing on Postman: - Updated pom.xml: Temporarily commented out Spring Security dependency to simplify API testing on Postman. - Updated DemoApplication.java: Minor configuration changes for application setup. - Modified Models:   - Updated User and ClothingItem classes to improve relationships and support bidirectional mapping. - Added DTO Pattern:   - Introduced ClothingItemDTO to control API response structure and resolve circular reference issues. - Implemented CRUD Operations:   - Created controllers, services, and repositories for User and ClothingItem to enable full CRUD functionality. - Test Preparation:   - Changes made specifically to facilitate API testing via Postman and ensure smooth end-to-end CRUD operations.
+* 2d531fa Add entity classes and relationships for User, ClothingItem, and Trade
+* 713e5e7 Update application.properties to configure PostgreSQL database connection
+* def8196 Add HelloController endpoint and update configurations
+* 74b62a8 Add Spring Boot demo project
+* 9fc6ffc Corrected mispelling
+* 808c354 Added Branching instructions to README
+* 5c6cab3 Added WGU Template README.md
+* 835201f Initial commit
