@@ -1,0 +1,27 @@
+<app-header></app-header>
+<div class="item-details" *ngIf="item">
+  <!-- Item Header -->
+  <div class="item-header">
+    <h2>{{ item.title }}</h2>
+    <p class="item-price">${{ item.price }}</p>
+  </div>
+
+  <!-- Item Info -->
+  <div class="item-info">
+    <p><strong>Brand:</strong> {{ item.brand }}</p>
+    <p><strong>Condition:</strong> {{ item.condition }}</p>
+    <p><strong>Description:</strong> {{ item.description }}</p>
+  </div>
+
+  <!-- Trade Request -->
+  <div class="trade-action">
+    <button
+      *ngIf="item.userId !== currentUserId"
+      (click)="onTradeRequest(item.id)"
+      [disabled]="isTradeRequested"
+      class="btn-trade">
+      Request Trade
+    </button>
+    <p *ngIf="isTradeRequested" class="trade-status">Trade already requested</p>
+  </div>
+</div>

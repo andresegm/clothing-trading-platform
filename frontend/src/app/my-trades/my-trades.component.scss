@@ -1,0 +1,82 @@
+.my-trades {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+
+  mat-tab-group {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    mat-tab-label {
+      font-weight: bold;
+      color: #333;
+
+      &:hover {
+        color: #007bff;
+      }
+    }
+
+    mat-tab-body {
+      padding: 1.5rem;
+    }
+  }
+
+  .no-trades {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-top: 1rem;
+  }
+
+  .trade-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .trade-item-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .trade-status {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      color: #555;
+
+      strong {
+        color: #333;
+      }
+    }
+
+    .trade-actions {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
+      }
+    }
+
+    .trade-completed {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .trade-cancelled {
+      color: #dc3545;
+      font-weight: bold;
+    }
+  }
+}
