@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.security.DummyTokenAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,9 @@ public class SecurityConfig {
 
     private final DummyTokenAuthenticationFilter dummyTokenAuthenticationFilter;
 
+    @Value("${app.env}")
+    private String environment; // Read environment variable (dev/prod)
+
     public SecurityConfig(DummyTokenAuthenticationFilter dummyTokenAuthenticationFilter) {
         this.dummyTokenAuthenticationFilter = dummyTokenAuthenticationFilter;
     }
@@ -34,24 +38,33 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Public endpoints
-                        .requestMatchers("/api/dashboard/data").authenticated() // Dashboard for authenticated users
-                        .requestMatchers("/api/trades/report").hasRole("ADMIN") // Restrict report to ADMIN
-                        .requestMatchers("/api/trades/**").authenticated() // Trades for authenticated users
-                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN") // User-related endpoints
-                        .anyRequest().authenticated() // Default rule for all other endpoints
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/dashboard/data").authenticated()
+                        .requestMatchers("/api/trades/report").hasRole("ADMIN")
+                        .requestMatchers("/api/trades/**").authenticated()
+                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(dummyTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Register filter
+                .addFilterBefore(dummyTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://3.135.191.136",
-                "http://clothingtradingplatform.com",
-                "http://www.clothingtradingplatform.com"));
+
+        if ("dev".equals(environment)) {
+            configuration.setAllowedOrigins(List.of(
+                    "http://localhost:4200" // Allow frontend for local development
+            ));
+        } else {
+            configuration.setAllowedOrigins(List.of(
+                    "http://3.135.191.136",
+                    "http://clothingtradingplatform.com",
+                    "http://www.clothingtradingplatform.com"
+            ));
+        }
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
@@ -61,5 +74,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
-//this configuration worked for both the frontend and backend from "http://clothingtradingplatform.com"

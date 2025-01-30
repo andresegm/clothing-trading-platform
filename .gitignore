@@ -35,3 +35,4 @@ build/
 
 # Logs
 logs/
+backend/demo/src/main/resources/application-prod.properties
