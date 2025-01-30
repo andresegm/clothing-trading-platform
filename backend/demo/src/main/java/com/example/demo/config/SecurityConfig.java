@@ -55,15 +55,15 @@ public class SecurityConfig {
 
         if ("dev".equals(environment)) {
             configuration.setAllowedOrigins(List.of(
-                    "http://localhost:4200" // Allow frontend for local development
+                    "http://localhost:4200" // Local development
             ));
         } else {
             configuration.setAllowedOrigins(List.of(
-                    "http://3.135.191.136",
-                    "http://clothingtradingplatform.com",
-                    "http://www.clothingtradingplatform.com"
+                    "https://clothingtradingplatform.com",
+                    "https://www.clothingtradingplatform.com"
             ));
         }
+
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
