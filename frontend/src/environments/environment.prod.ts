@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://3.135.191.136:8080'
+  apiUrl: 'https://clothingtradingplatform.com/api'
 };
