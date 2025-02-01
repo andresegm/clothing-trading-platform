@@ -131,4 +131,33 @@ export class ApiService {
 
     return this.http.get<any[]>(`${this.baseUrl}/trades/report`, { headers, params });
   }
+
+  // Fetch unread notifications for the logged-in user
+  getUnreadNotifications(userId: number): Observable<any[]> {
+    const token = localStorage.getItem('authToken'); // Ensure consistent token key
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get<any[]>(`${this.baseUrl}/notifications/unread?userId=${userId}`, { headers }).pipe(
+      tap((response) => console.log('Unread Notifications:', response)), // Debugging log
+      catchError((error) => {
+        console.error('Failed to fetch notifications:', error);
+        throw error;
+      })
+    );
+  }
+
+// Mark all notifications as read for the logged-in user
+  markNotificationsAsRead(userId: number): Observable<void> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.post<void>(`${this.baseUrl}/notifications/mark-as-read?userId=${userId}`, {}, { headers }).pipe(
+      tap(() => console.log(`Marked all notifications as read for user ${userId}`)),
+      catchError((error) => {
+        console.error('Failed to mark notifications as read:', error);
+        throw error;
+      })
+    );
+  }
+
 }

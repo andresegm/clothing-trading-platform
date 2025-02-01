@@ -26,6 +26,9 @@ public class TradeService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public Trade saveTrade(Trade trade) {
         return tradeRepository.save(trade);
     }
@@ -76,8 +79,17 @@ public class TradeService {
         trade.setReceiver(item.getUser());
         trade.setTradeDate(LocalDateTime.now());
 
-        return tradeRepository.save(trade);
+        Trade savedTrade = tradeRepository.save(trade);
+
+        //Notify the receiver
+        notificationService.createNotification(
+                savedTrade.getReceiver().getId(),
+                "📦 New trade request! " + initiator.getUsername() + " wants to trade for your item: " + item.getTitle()
+        );
+
+        return savedTrade;
     }
+
 
     public Trade updateTradeStatus(Long id, String action, String username) {
         Trade trade = getTradeByIdEntity(id);
@@ -87,10 +99,13 @@ public class TradeService {
             throw new RuntimeException("User not authorized to update this trade.");
         }
 
+        String notificationMessage;
         switch (action.toLowerCase()) {
             case "accept":
                 if (trade.getReceiver().getUsername().equals(username)) {
                     trade.setStatus("Accepted");
+                    notificationMessage = "✅ Trade accepted! Your trade request for " + trade.getItem().getTitle() + " was accepted.";
+                    notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
                 } else {
                     throw new RuntimeException("Only the receiver can accept trades.");
                 }
@@ -99,6 +114,8 @@ public class TradeService {
             case "decline":
                 if (trade.getReceiver().getUsername().equals(username)) {
                     trade.setStatus("Cancelled");
+                    notificationMessage = "❌ Trade declined! Your trade request for " + trade.getItem().getTitle() + " was declined.";
+                    notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
                 } else {
                     throw new RuntimeException("Only the receiver can decline trades.");
                 }
@@ -107,8 +124,12 @@ public class TradeService {
             case "complete":
                 if (trade.getStatus().equals("Accepted")) {
                     trade.setStatus("Completed");
-                    trade.getItem().setAvailable(false); // Mark the item as unavailable
-                    clothingItemRepository.save(trade.getItem()); // Update the item's availability
+                    trade.getItem().setAvailable(false);
+                    clothingItemRepository.save(trade.getItem());
+
+                    notificationMessage = "🎉 Trade completed! The trade for " + trade.getItem().getTitle() + " has been finalized.";
+                    notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
+                    notificationService.createNotification(trade.getReceiver().getId(), notificationMessage);
                 } else {
                     throw new RuntimeException("Only accepted trades can be completed.");
                 }
@@ -116,6 +137,9 @@ public class TradeService {
 
             case "cancel":
                 trade.setStatus("Cancelled");
+                notificationMessage = "⚠️ Trade canceled! The trade for " + trade.getItem().getTitle() + " has been canceled.";
+                notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
+                notificationService.createNotification(trade.getReceiver().getId(), notificationMessage);
                 break;
 
             default:
@@ -124,6 +148,7 @@ public class TradeService {
 
         return tradeRepository.save(trade);
     }
+
 
     public List<TradeDTO> generateTradeReport(String status, LocalDateTime startDate, LocalDateTime endDate) {
         return tradeRepository.findAll().stream()

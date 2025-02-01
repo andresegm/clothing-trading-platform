@@ -13,6 +13,26 @@
   </nav>
 
   <div class="header-actions">
+    <!-- Notifications Dropdown -->
+    <div class="notification-container">
+      <div class="notification-icon" (click)="toggleNotifications()">
+        <mat-icon>notifications</mat-icon>
+        <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
+      </div>
+
+      <div *ngIf="showDropdown" class="notification-dropdown" (click)="toggleNotifications($event)">
+      <p *ngIf="notifications.length === 0" class="dropdown-item">No new notifications</p>
+
+        <div *ngFor="let notification of notifications" class="dropdown-item" (click)="markAsRead(notification)">
+          {{ notification.message }}
+        </div>
+
+        <div class="dropdown-footer" *ngIf="notifications.length > 0">
+          <button class="mark-read-btn" (click)="markAllAsRead($event)">Mark all as read</button>
+        </div>
+      </div>
+    </div>
+
     <form class="search-form" (ngSubmit)="onSearch()">
       <input
         type="text"
@@ -22,6 +42,7 @@
       />
       <button type="submit">Search</button>
     </form>
+
     <button (click)="onLogout()" class="btn-logout">Logout</button>
   </div>
 </header>

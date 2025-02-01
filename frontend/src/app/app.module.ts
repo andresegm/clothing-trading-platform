@@ -15,6 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatTabsModule} from "@angular/material/tabs";
 import { ItemDetailsComponent } from './item-details/item-details.component';
 import { HomeComponent } from './home/home.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { HomeComponent } from './home/home.component';
     FormsModule,
     MatSnackBarModule,
     BrowserAnimationsModule,
+    MatIconModule,
     MatTabsModule
   ],
   bootstrap: [AppComponent]
