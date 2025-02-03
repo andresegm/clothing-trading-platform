@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.security.DummyTokenAuthenticationFilter;
+import com.example.demo.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,13 +18,13 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    private final DummyTokenAuthenticationFilter dummyTokenAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${app.env}")
     private String environment; // Read environment variable (dev/prod)
 
-    public SecurityConfig(DummyTokenAuthenticationFilter dummyTokenAuthenticationFilter) {
-        this.dummyTokenAuthenticationFilter = dummyTokenAuthenticationFilter;
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(dummyTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -63,7 +63,6 @@ public class SecurityConfig {
                     "https://www.clothingtradingplatform.com"
             ));
         }
-
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));

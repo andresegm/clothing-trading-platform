@@ -27,6 +27,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody @Valid RegisterRequest registerRequest) {
+        // Ensure password is hashed before saving
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
@@ -34,35 +35,21 @@ public class AuthController {
 
         authService.registerUser(user);
 
-        // Return a JSON response
+        // Return JSON response
         Map<String, String> response = new HashMap<>();
         response.put("message", "User registered successfully!");
         return ResponseEntity.ok(response);
     }
 
-
-
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
-        boolean isAuthenticated = authService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-        if (isAuthenticated) {
-            // Fetch the user by username
-            User user = userService.findByUsername(loginRequest.getUsername());
+        try {
+            // Authenticate user and return both token & user details
+            Map<String, Object> authResponse = authService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
 
-            // Fetch the user's roles
-            List<String> roles = user.getRoles().stream()
-                    .map(role -> role.getRoleName())
-                    .collect(Collectors.toList());
-
-            // Create the response payload
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", "dummy-jwt-token-for-" + loginRequest.getUsername());
-            response.put("userId", user.getId());
-            response.put("roles", roles);
-
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
+            return ResponseEntity.ok(authResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
     }
 }
