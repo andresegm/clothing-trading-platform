@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,11 +12,21 @@ export class RegisterComponent {
   email = '';
   password = '';
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
-    if (!this.username || !this.email || !this.password) {
-      alert('Please fill out all fields.');
+    if (this.username.length < 3 || this.username.length > 20) {
+      alert('Username must be between 3 and 20 characters.');
+      return;
+    }
+
+    if (!this.isValidEmail(this.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    if (this.password.length < 8) {
+      alert('Password must be at least 8 characters long.');
       return;
     }
 
@@ -26,7 +36,7 @@ export class RegisterComponent {
       password: this.password,
     };
 
-    this.apiService.register(registerData).subscribe({
+    this.authService.register(registerData).subscribe({
       next: (response) => {
         console.log('Registration successful:', response);
         alert('Registration successful! You can now log in.');
@@ -34,8 +44,12 @@ export class RegisterComponent {
       },
       error: (err) => {
         console.error('Registration failed:', err);
-        alert('Registration failed. Please try again.');
+        alert(err?.error?.message || 'Registration failed. Please try again.');
       },
     });
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 }
