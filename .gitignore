@@ -1,3 +1,5 @@
+deploy.sh
+
 # Backend-specific ignores
 backend/demo/HELP.md
 backend/demo/target/
@@ -36,3 +38,5 @@ build/
 # Logs
 logs/
 backend/demo/src/main/resources/application-prod.properties
+
+

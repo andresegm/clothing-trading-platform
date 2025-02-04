@@ -12,10 +12,11 @@ export class ApiService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private getHeaders(): { headers: HttpHeaders } {
+  private getHeaders(): { headers?: HttpHeaders } {
     const token = this.authService.getToken();
-    return { headers: new HttpHeaders({ 'Authorization': `Bearer ${token}` }) };
+    return token ? { headers: new HttpHeaders({ 'Authorization': `Bearer ${token}` }) } : {};
   }
+
 
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/dashboard/data`, this.getHeaders());
