@@ -12,17 +12,18 @@ export class HeaderComponent implements OnInit {
   notifications: any[] = [];
   unreadCount: number = 0;
   showDropdown: boolean = false;
-  userId: number = 0; // Ensure userId is stored as a number
+  userId: number | null = null;
 
   constructor(private router: Router, private apiService: ApiService) {}
 
   ngOnInit() {
-    this.userId = Number(localStorage.getItem('userId'));
+    const storedUserId = localStorage.getItem('userId');
+    this.userId = storedUserId && storedUserId !== "null" ? Number(storedUserId) : null;
+
     console.log('ngOnInit called. Retrieved userId:', this.userId);
 
-    if (!this.userId || this.userId <= 0) {
-      console.error('Invalid userId in localStorage:', this.userId);
-      alert('User ID is missing or invalid. Please log in again.');
+    if (this.userId === null) {
+      console.warn('User is not logged in. Skipping protected actions.');
       return;
     }
 
@@ -46,29 +47,35 @@ export class HeaderComponent implements OnInit {
     this.showDropdown = !this.showDropdown;
   }
 
-
   fetchNotifications() {
+    if (this.userId === null) {
+      console.warn("Skipping notification fetch: User not logged in.");
+      return;
+    }
+
     this.apiService.getUnreadNotifications(this.userId).subscribe((data) => {
       this.notifications = data;
       this.unreadCount = data.length;
     });
   }
 
-
   markAsRead(notification: any) {
+    if (this.userId === null) return; // Prevent API call if userId is null
+
     this.apiService.markNotificationsAsRead(this.userId).subscribe(() => {
       this.notifications = this.notifications.filter(n => n.id !== notification.id);
       this.unreadCount = this.notifications.length;
     });
   }
 
-
   markAllAsRead(event: Event) {
     event.stopPropagation();
+
+    if (this.userId === null) return; // Prevent API call if userId is null
+
     this.apiService.markNotificationsAsRead(this.userId).subscribe(() => {
       this.notifications = [];
       this.unreadCount = 0;
     });
   }
-
 }
