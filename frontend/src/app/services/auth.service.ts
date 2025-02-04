@@ -18,10 +18,14 @@ export class AuthService {
       credentials
     ).pipe(
       tap(response => {
-        if (response.token) {
+        console.log("Login Response:", response); // Debug login response
+
+        if (response.token && response.userId) {
           localStorage.setItem('authToken', response.token);
           localStorage.setItem('userId', response.userId.toString());
           localStorage.setItem('roles', JSON.stringify(response.roles));
+        } else {
+          console.error("Invalid login response structure:", response);
         }
       }),
       catchError(error => {
