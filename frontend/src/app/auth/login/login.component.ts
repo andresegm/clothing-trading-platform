@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,7 +11,7 @@ export class LoginComponent {
   username = '';
   password = '';
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
     if (this.username.length < 3 || this.username.length > 20) {
@@ -26,13 +26,17 @@ export class LoginComponent {
 
     const loginData = { username: this.username, password: this.password };
 
-    this.apiService.login(loginData).subscribe({
+    this.authService.login(loginData).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-        if (response && response.token && response.userId && response.roles) {
-          localStorage.setItem('authToken', response.token);
-          localStorage.setItem('userId', response.userId.toString());
-          localStorage.setItem('roles', JSON.stringify(response.roles));
+        if (response?.token) {
+          localStorage.setItem('jwtToken', response.token);
+          if (response.userId) {
+            localStorage.setItem('userId', response.userId.toString());
+          }
+          if (response.roles) {
+            localStorage.setItem('roles', JSON.stringify(response.roles));
+          }
           alert('Login successful!');
           this.router.navigate(['/dashboard']);
         } else {

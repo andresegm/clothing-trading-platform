@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {catchError, Observable, tap} from 'rxjs';
-import {environment} from "../../environments/environment";
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { catchError, Observable, tap } from 'rxjs';
+import { environment } from "../../environments/environment";
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,24 +10,15 @@ import {environment} from "../../environments/environment";
 export class ApiService {
   private baseUrl = `${environment.apiUrl}/api`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Login method
-  login(data: { username: string; password: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/auth/login`, data);
+  private getHeaders(): { headers: HttpHeaders } {
+    const token = this.authService.getToken();
+    return { headers: new HttpHeaders({ 'Authorization': `Bearer ${token}` }) };
   }
 
-  // Register method
-  register(data: { username: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/auth/register`, data);
-  }
-
-  // Fetch dashboard data
   getDashboardData(): Observable<any> {
-    const rawToken = localStorage.getItem('authToken'); // Get the raw token from localStorage
-    const token = typeof rawToken === 'string' ? rawToken : ''; // Ensures it's a string
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get(`${this.baseUrl}/dashboard/data`, { headers });
+    return this.http.get(`${this.baseUrl}/dashboard/data`, this.getHeaders());
   }
 
   searchClothingItems(filters: {
@@ -38,126 +30,61 @@ export class ApiService {
     maxPrice?: number | null;
   }): Observable<any[]> {
     let params = new HttpParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params = params.set(key, value.toString());
+      }
+    });
 
-    // Add parameters only if they have a value
-    if (filters.title) params = params.set('title', filters.title);
-    if (filters.brand) params = params.set('brand', filters.brand);
-    if (filters.size) params = params.set('size', filters.size);
-    if (filters.condition) params = params.set('condition', filters.condition);
-    if (filters.minPrice != null) params = params.set('minPrice', filters.minPrice.toString());
-    if (filters.maxPrice != null) params = params.set('maxPrice', filters.maxPrice.toString());
-
-    const rawToken = localStorage.getItem('authToken');
-    const token = typeof rawToken === 'string' ? rawToken : '';
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { headers, params });
+    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { ...this.getHeaders(), params });
   }
 
-  // Get items for the logged-in user
   getMyClothingItems(userId: number): Observable<any[]> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, { headers }).pipe(
-      tap((response) => console.log('API response:', response)), // Log response
-      catchError((error) => {
-        console.error('API call failed:', error); // Log error
-        throw error;
-      })
-    );
+    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, this.getHeaders());
   }
 
-// Add a new clothing item
   addClothingItem(item: any): Observable<any> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.post(`${this.baseUrl}/clothing-items`, item, { headers });
+    return this.http.post(`${this.baseUrl}/clothing-items`, item, this.getHeaders());
   }
 
   updateClothingItem(itemId: number, updatedItem: any): Observable<any> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.put(`${this.baseUrl}/clothing-items/${itemId}`, updatedItem, { headers });
+    return this.http.put(`${this.baseUrl}/clothing-items/${itemId}`, updatedItem, this.getHeaders());
   }
 
-
   getUserTrades(): Observable<any> {
-    const token = localStorage.getItem('authToken'); // Ensure consistent token key
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.get(`${this.baseUrl}/trades`, { headers });
+    return this.http.get(`${this.baseUrl}/trades`, this.getHeaders());
   }
 
   updateTradeStatus(tradeId: number, status: string): Observable<any> {
-    const body = { status };
-    const token = localStorage.getItem('authToken'); // Ensure consistent token key usage
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.put(`${this.baseUrl}/trades/${tradeId}/status`, body, { headers });
+    return this.http.put(`${this.baseUrl}/trades/${tradeId}/status`, { status }, this.getHeaders());
   }
 
   initiateTrade(itemId: number, status: string): Observable<any> {
-    const token = localStorage.getItem('authToken'); // Get the token from localStorage
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    const body = { itemId, status }; // Payload for the API request
-
-    return this.http.post(`${this.baseUrl}/trades`, body, { headers });
+    return this.http.post(`${this.baseUrl}/trades`, { itemId, status }, this.getHeaders());
   }
 
   getItemDetails(itemId: number): Observable<any> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.get(`${this.baseUrl}/clothing-items/${itemId}`, { headers });
+    return this.http.get(`${this.baseUrl}/clothing-items/${itemId}`, this.getHeaders());
   }
 
   checkExistingTrade(itemId: number): Observable<boolean> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, { headers });
+    return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, this.getHeaders());
   }
 
   getTradeReport(status?: string, startDate?: string, endDate?: string): Observable<any[]> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     let params = new HttpParams();
     if (status) params = params.set('status', status);
     if (startDate) params = params.set('startDate', startDate);
     if (endDate) params = params.set('endDate', endDate);
 
-    return this.http.get<any[]>(`${this.baseUrl}/trades/report`, { headers, params });
+    return this.http.get<any[]>(`${this.baseUrl}/trades/report`, { ...this.getHeaders(), params });
   }
 
-  // Fetch unread notifications for the logged-in user
   getUnreadNotifications(userId: number): Observable<any[]> {
-    const token = localStorage.getItem('authToken'); // Ensure consistent token key
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.get<any[]>(`${this.baseUrl}/notifications/unread?userId=${userId}`, { headers }).pipe(
-      tap((response) => console.log('Unread Notifications:', response)), // Debugging log
-      catchError((error) => {
-        console.error('Failed to fetch notifications:', error);
-        throw error;
-      })
-    );
+    return this.http.get<any[]>(`${this.baseUrl}/notifications/unread?userId=${userId}`, this.getHeaders());
   }
 
-// Mark all notifications as read for the logged-in user
   markNotificationsAsRead(userId: number): Observable<void> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.post<void>(`${this.baseUrl}/notifications/mark-as-read?userId=${userId}`, {}, { headers }).pipe(
-      tap(() => console.log(`Marked all notifications as read for user ${userId}`)),
-      catchError((error) => {
-        console.error('Failed to mark notifications as read:', error);
-        throw error;
-      })
-    );
+    return this.http.post<void>(`${this.baseUrl}/notifications/mark-as-read?userId=${userId}`, {}, this.getHeaders());
   }
-
 }
