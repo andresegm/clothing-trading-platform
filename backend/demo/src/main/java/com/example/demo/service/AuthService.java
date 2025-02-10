@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class AuthService {
@@ -27,6 +28,11 @@ public class AuthService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
+
+    @Value("${jwt.refresh-secret}")
+    private String REFRESH_SECRET_KEY;
+
+    private final Map<String, String> refreshTokenStore = new HashMap<>();
 
     public void registerUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -55,30 +61,48 @@ public class AuthService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        // Generate JWT Token
-        String token = generateToken(user);
+        // Generate JWT Tokens
+        String accessToken = generateToken(user, SECRET_KEY, 86400000); // 24h
+        String refreshToken = generateToken(user, REFRESH_SECRET_KEY, 604800000); // 7 days
 
-        // Prepare response with token & user details
+        // Store refresh token
+        refreshTokenStore.put(refreshToken, username);
+
+        // Prepare response
         Map<String, Object> authResponse = new HashMap<>();
-        authResponse.put("token", token);
+        authResponse.put("token", accessToken);
+        authResponse.put("refreshToken", refreshToken);
         authResponse.put("userId", user.getId());
-        authResponse.put("roles", user.getRoles().stream()
-                .map(UserRole::getRoleName)
-                .collect(Collectors.toList()));
+        authResponse.put("roles", user.getRoles().stream().map(UserRole::getRoleName).collect(Collectors.toList()));
 
         return authResponse;
     }
 
-    private String generateToken(User user) {
+    public String generateToken(User user, String secret, long expirationMs) {
+
+
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + 86400000); // Token valid for 24 hours
+        Date expiryDate = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("roles", user.getRoles().stream().map(UserRole::getRoleName).collect(Collectors.toList()))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+
+    public String refreshAccessToken(String refreshToken) {
+        if (!refreshTokenStore.containsKey(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String username = refreshTokenStore.get(refreshToken);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return generateToken(user, SECRET_KEY, 86400000); // New access token (24h)
     }
 }

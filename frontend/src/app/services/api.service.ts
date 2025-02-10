@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { catchError, Observable, tap } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
 import { environment } from "../../environments/environment";
 import { AuthService } from './auth.service';
 
@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 })
 export class ApiService {
   private baseUrl = `${environment.apiUrl}/api`;
+  private isRefreshing = false;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -17,19 +18,30 @@ export class ApiService {
     return token ? { headers: new HttpHeaders({ 'Authorization': `Bearer ${token}` }) } : {};
   }
 
-
-  getDashboardData(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/dashboard/data`, this.getHeaders());
+  private handleAuthError(error: HttpErrorResponse, originalRequest: Observable<any>): Observable<any> {
+    if (error.status === 401 && !this.isRefreshing) {
+      this.isRefreshing = true;
+      return this.authService.refreshToken().pipe(
+        switchMap(() => {
+          this.isRefreshing = false;
+          return originalRequest; // Retry the original request with new token
+        }),
+        catchError(err => {
+          this.isRefreshing = false;
+          return throwError(() => new Error('Session expired. Please log in again.'));
+        })
+      );
+    }
+    return throwError(() => error);
   }
 
-  searchClothingItems(filters: {
-    title?: string;
-    brand?: string;
-    size?: string;
-    condition?: string;
-    minPrice?: number | null;
-    maxPrice?: number | null;
-  }): Observable<any[]> {
+  getDashboardData(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/dashboard/data`, this.getHeaders()).pipe(
+      catchError(error => this.handleAuthError(error, this.getDashboardData()))
+    );
+  }
+
+  searchClothingItems(filters: { title?: string; brand?: string; size?: string; condition?: string; minPrice?: number | null; maxPrice?: number | null; }): Observable<any[]> {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
@@ -37,10 +49,12 @@ export class ApiService {
       }
     });
 
-    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { ...this.getHeaders(), params });
+    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { ...this.getHeaders(), params }).pipe(
+      catchError(error => this.handleAuthError(error, this.searchClothingItems(filters)))
+    );
   }
 
-  getMyClothingItems(userId: number): Observable<any[]> {
+getMyClothingItems(userId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, this.getHeaders());
   }
 

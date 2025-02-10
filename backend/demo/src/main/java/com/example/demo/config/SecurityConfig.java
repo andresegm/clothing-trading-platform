@@ -4,6 +4,7 @@ import com.example.demo.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +39,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll() // Allow refresh token
+                        .requestMatchers(HttpMethod.GET, "/api/clothing-items/filter").authenticated() // ✅ Allow filtering clothing items
+                        .requestMatchers(HttpMethod.GET, "/api/notifications/unread").authenticated() // ✅ Allow fetching notifications
                         .requestMatchers("/api/dashboard/data").authenticated()
                         .requestMatchers("/api/trades/report").hasRole("ADMIN")
                         .requestMatchers("/api/trades/**").authenticated()
@@ -48,6 +51,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

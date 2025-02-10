@@ -1,4 +1,5 @@
 deploy.sh
+run_backend.sh
 
 # Backend-specific ignores
 backend/demo/HELP.md

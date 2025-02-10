@@ -1,7 +1,9 @@
 package com.example.demo.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,14 +31,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // Extract JWT
 
             try {
-                Claims claims = Jwts.parser()
-                        .setSigningKey(secretKey)
+                Claims claims = Jwts.parserBuilder()
+                        .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                        .build()
                         .parseClaimsJws(token)
                         .getBody();
 
@@ -49,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 UserDetails userDetails = User.builder()
                         .username(username)
-                        .password("") // No need for password in JWT auth
+                        .password("")
                         .authorities(authorities)
                         .build();
 
@@ -57,11 +66,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(userDetails, null, authorities)
                 );
             } catch (Exception e) {
+                System.out.println("JWT Parsing Failed: " + e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
+
+        } else {
+            System.out.println("⚠Authorization Header Missing");
         }
 
         filterChain.doFilter(request, response);
     }
+
 }
