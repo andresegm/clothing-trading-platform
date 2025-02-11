@@ -62,21 +62,22 @@ public class AuthService {
         }
 
         // Generate JWT Tokens
-        String accessToken = generateToken(user, SECRET_KEY, 86400000); // 24h
+        String accessToken = generateToken(user, SECRET_KEY, 900000); // 15 mins
         String refreshToken = generateToken(user, REFRESH_SECRET_KEY, 604800000); // 7 days
 
         // Store refresh token
         refreshTokenStore.put(refreshToken, username);
 
-        // Prepare response
-        Map<String, Object> authResponse = new HashMap<>();
-        authResponse.put("token", accessToken);
-        authResponse.put("refreshToken", refreshToken);
-        authResponse.put("userId", user.getId());
-        authResponse.put("roles", user.getRoles().stream().map(UserRole::getRoleName).collect(Collectors.toList()));
+        // Return only user info (tokens are now in cookies)
+        return Map.of(
+                "message", "Authentication successful",
+                "userId", user.getId(),
+                "token", accessToken,
+                "refreshToken", refreshToken
+        );
 
-        return authResponse;
     }
+
 
     public String generateToken(User user, String secret, long expirationMs) {
 

@@ -39,9 +39,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll() // Allow refresh token
-                        .requestMatchers(HttpMethod.GET, "/api/clothing-items/filter").authenticated() // ✅ Allow filtering clothing items
-                        .requestMatchers(HttpMethod.GET, "/api/notifications/unread").authenticated() // ✅ Allow fetching notifications
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/clothing-items/filter").authenticated()
+                        .requestMatchers("/api/notifications/unread").authenticated()
                         .requestMatchers("/api/dashboard/data").authenticated()
                         .requestMatchers("/api/trades/report").hasRole("ADMIN")
                         .requestMatchers("/api/trades/**").authenticated()
@@ -51,7 +51,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -70,10 +69,11 @@ public class SecurityConfig {
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // Allow sending cookies
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
+
