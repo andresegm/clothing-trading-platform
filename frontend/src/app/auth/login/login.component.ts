@@ -27,21 +27,10 @@ export class LoginComponent {
     const loginData = { username: this.username, password: this.password };
 
     this.authService.login(loginData).subscribe({
-      next: (response) => {
-        console.log('Login successful:', response);
-        if (response?.token) {
-          localStorage.setItem('jwtToken', response.token);
-          if (response.userId) {
-            localStorage.setItem('userId', response.userId.toString());
-          }
-          if (response.roles) {
-            localStorage.setItem('roles', JSON.stringify(response.roles));
-          }
-          alert('Login successful!');
-          this.router.navigate(['/dashboard']);
-        } else {
-          alert('Login failed. Please try again.');
-        }
+      next: () => {
+        console.log('Login successful');
+        alert('Login successful!');
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Login failed:', err);

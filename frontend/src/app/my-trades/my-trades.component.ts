@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Trade } from '../model/Trade';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-my-trades',
@@ -11,26 +12,49 @@ import { Trade } from '../model/Trade';
 export class MyTradesComponent implements OnInit {
   initiatedTrades: Trade[] = [];
   receivedTrades: Trade[] = [];
+  currentUserId: number | null = null;
 
-  constructor(private apiService: ApiService, private snackBar: MatSnackBar) {}
+  constructor(private apiService: ApiService, private snackBar: MatSnackBar, private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.fetchTrades();
+    this.authService.getAuthenticatedUser().subscribe({
+      next: (user) => {
+        if (user && user.id) {
+          this.currentUserId = user.id;
+          console.log("User ID retrieved:", this.currentUserId); // Debugging log
+          this.fetchTrades(); // Fetch trades only after user ID is set
+        } else {
+          console.error("User ID is missing!");
+        }
+      },
+      error: (error) => {
+        console.error("Error fetching authenticated user:", error);
+        this.currentUserId = null;
+      }
+    });
   }
 
+
   fetchTrades(): void {
+    if (!this.currentUserId) {
+      console.error("Cannot fetch trades: User ID is null.");
+      return;
+    }
+
     this.apiService.getUserTrades().subscribe({
       next: (trades: Trade[]) => {
-        const userId = localStorage.getItem('userId');
-        this.initiatedTrades = trades.filter(trade => trade.initiatorId.toString() === userId);
-        this.receivedTrades = trades.filter(trade => trade.receiverId.toString() === userId);
+        this.initiatedTrades = trades.filter(trade => trade.initiatorId === this.currentUserId);
+        this.receivedTrades = trades.filter(trade => trade.receiverId === this.currentUserId);
+        console.log("Initiated trades:", this.initiatedTrades);
+        console.log("Received trades:", this.receivedTrades);
       },
       error: (err) => {
-        console.error(err);
+        console.error("Error fetching trades:", err);
         this.snackBar.open('Failed to load trades.', 'Close', { duration: 3000 });
       }
     });
   }
+
 
   acceptTrade(tradeId: number): void {
     this.updateTradeStatus(tradeId, 'accept');
@@ -46,9 +70,9 @@ export class MyTradesComponent implements OnInit {
 
   completeTrade(tradeId: number): void {
     this.apiService.updateTradeStatus(tradeId, 'complete').subscribe({
-      next: (response) => {
+      next: () => {
         this.snackBar.open('Trade marked as completed!', 'Close', { duration: 3000 });
-        this.fetchTrades(); // Refresh the list to reflect changes
+        this.fetchTrades();
       },
       error: (err) => {
         console.error(err);
@@ -57,12 +81,11 @@ export class MyTradesComponent implements OnInit {
     });
   }
 
-
   updateTradeStatus(tradeId: number, status: string): void {
     this.apiService.updateTradeStatus(tradeId, status).subscribe({
-      next: (response) => {
+      next: () => {
         this.snackBar.open(`Trade ${status}ed successfully!`, 'Close', { duration: 3000 });
-        this.fetchTrades(); // Refresh the list to reflect the updated status
+        this.fetchTrades();
       },
       error: (err) => {
         console.error(err);
@@ -70,5 +93,4 @@ export class MyTradesComponent implements OnInit {
       }
     });
   }
-
 }

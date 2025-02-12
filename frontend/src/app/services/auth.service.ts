@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -12,19 +12,16 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  getAuthenticatedUser(): Observable<any> {
+    return this.http.get(`${this.authUrl}/user`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
+  }
+
+
   login(credentials: { username: string; password: string }): Observable<any> {
-    return this.http.post<{ token: string; refreshToken: string; userId: number; roles: string[] }>(
-      `${this.authUrl}/login`,
-      credentials
-    ).pipe(
-      tap(response => {
-        if (response.token && response.refreshToken) {
-          localStorage.setItem('authToken', response.token);
-          localStorage.setItem('refreshToken', response.refreshToken);
-          localStorage.setItem('userId', response.userId.toString());
-          localStorage.setItem('roles', JSON.stringify(response.roles));
-        }
-      }),
+    return this.http.post(`${this.authUrl}/login`, credentials, { withCredentials: true }).pipe(
+      tap(() => console.log('User logged in successfully')),
       catchError(error => {
         console.error('Login error:', error);
         return throwError(() => new Error('Login failed. Please check your credentials.'));
@@ -42,46 +39,38 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) {
-      this.logout();
-      return throwError(() => new Error('No refresh token available.'));
-    }
-
-    return this.http.post<{ token: string }>(`${this.authUrl}/refresh`, { refreshToken })
-      .pipe(
-        tap(response => {
-          if (response.token) {
-            localStorage.setItem('authToken', response.token);
-          } else {
-            this.logout();
-          }
-        }),
-        catchError(error => {
-          console.error('Token refresh failed:', error);
-          this.logout();
-          return throwError(() => new Error('Session expired. Please log in again.'));
-        })
-      );
+    return this.http.post(`${this.authUrl}/refresh`, {}, { withCredentials: true }).pipe(
+      tap(() => console.log('Token refreshed successfully')),
+      catchError(error => {
+        console.error('Token refresh failed:', error);
+        this.logout();
+        return throwError(() => new Error('Session expired. Please log in again.'));
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('roles');
-    this.router.navigate(['/login']);
+    this.http.post(`${this.authUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => {
+        console.log('User logged out successfully');
+        this.router.navigate(['/login']);
+      },
+      error: error => console.error('Logout error:', error),
+    });
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('authToken');
+  isLoggedIn(): Observable<boolean> {
+    return this.http.get<boolean>(`${this.authUrl}/validate-session`, { withCredentials: true }).pipe(
+      catchError(() => {
+        return throwError(() => new Error('Session validation failed.'));
+      })
+    );
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('authToken');
-  }
-
-  getRoles(): string[] {
-    return JSON.parse(localStorage.getItem('roles') || '[]');
+  private handleAuthError(error: HttpErrorResponse): Observable<any> {
+    if (error.status === 401) {
+      return throwError(() => new Error('Session expired. Please log in again.'));
+    }
+    return throwError(() => error);
   }
 }

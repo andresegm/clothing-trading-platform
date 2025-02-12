@@ -25,25 +25,29 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchDashboardData(): void {
-    this.apiService.getDashboardData().subscribe(
-      (data) => {
-        // Populate data into respective variables
+    this.apiService.getDashboardData().subscribe({
+      next: (data) => {
         this.user = data.user;
         this.recentClothingItems = data.recentClothingItems;
         this.recentTrades = data.recentTrades;
       },
-      (err) => {
-        // Handle errors
+      error: (err) => {
         this.error = 'Failed to load dashboard data.';
         console.error(err);
-      }
-    );
+      },
+    });
   }
 
   checkAdminRole(): void {
-    const roles = JSON.parse(localStorage.getItem('roles') || '[]');
-    console.log('Retrieved roles:', roles);
-    this.isAdmin = roles.includes('ADMIN');
+    this.apiService.getUserTrades().subscribe({
+      next: (trades) => {
+        // Assuming the API returns user details including roles
+        this.isAdmin = trades.user?.roles.includes('ADMIN');
+      },
+      error: () => {
+        this.isAdmin = false;
+      },
+    });
   }
 
   generateReport(): void {
@@ -87,6 +91,6 @@ export class DashboardComponent implements OnInit {
   }
 
   onLogout(): void {
-    this.authService.logout(); // Call logout from AuthService
+    this.authService.logout();
   }
 }

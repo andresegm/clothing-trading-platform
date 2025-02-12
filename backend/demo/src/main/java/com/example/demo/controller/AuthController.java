@@ -9,14 +9,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,6 +35,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Value("${app.env}")
+    private String environment; // Read environment variable (dev/prod)
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody @Valid RegisterRequest registerRequest) {
@@ -89,8 +100,8 @@ public class AuthController {
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/"); // Available on all endpoints
+        cookie.setSecure(!"dev".equals(environment)); // Secure only in production
+        cookie.setPath("/");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
@@ -120,9 +131,51 @@ public class AuthController {
     private void removeCookie(HttpServletResponse response, String name) {
         Cookie cookie = new Cookie(name, null);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // Set to true in production (HTTPS)
+        cookie.setSecure(!"dev".equals(environment));
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
+
+    @GetMapping("/validate-session")
+    public ResponseEntity<Boolean> validateSession() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Ensure authentication is valid and user is not anonymous
+        boolean isAuthenticated = authentication != null &&
+                authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+
+        return ResponseEntity.ok(isAuthenticated);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getAuthenticatedUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.status(403).body(Map.of("error", "User not authenticated"));
+        }
+
+        // Get the username from the authenticated principal
+        String username = authentication.getName(); // This is how you can get the username from Spring Security's UserDetails
+
+        // Fetch the User entity from the database using the username
+        User user = userService.findByUsername(username);
+
+        if (user == null) {
+            return ResponseEntity.status(403).body(Map.of("error", "User not found in database"));
+        }
+
+        // Log the username for debugging
+        System.out.println("Authenticated User: " + username);
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "email", user.getEmail(),
+                "roles", user.getRoles().stream()
+                        .map(role -> role.getRoleName())
+                        .collect(Collectors.toList())
+        ));
+    }
+
 }

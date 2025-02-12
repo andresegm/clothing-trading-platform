@@ -1,43 +1,26 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, switchMap, throwError } from 'rxjs';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from "../../environments/environment";
-import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private baseUrl = `${environment.apiUrl}/api`;
-  private isRefreshing = false;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient) {}
 
-  private getHeaders(): { headers?: HttpHeaders } {
-    const token = this.authService.getToken();
-    return token ? { headers: new HttpHeaders({ 'Authorization': `Bearer ${token}` }) } : {};
-  }
-
-  private handleAuthError(error: HttpErrorResponse, originalRequest: Observable<any>): Observable<any> {
-    if (error.status === 401 && !this.isRefreshing) {
-      this.isRefreshing = true;
-      return this.authService.refreshToken().pipe(
-        switchMap(() => {
-          this.isRefreshing = false;
-          return originalRequest; // Retry the original request with new token
-        }),
-        catchError(err => {
-          this.isRefreshing = false;
-          return throwError(() => new Error('Session expired. Please log in again.'));
-        })
-      );
+  private handleAuthError(error: HttpErrorResponse): Observable<any> {
+    if (error.status === 401) {
+      return throwError(() => new Error('Session expired. Please log in again.'));
     }
     return throwError(() => error);
   }
 
   getDashboardData(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/dashboard/data`, this.getHeaders()).pipe(
-      catchError(error => this.handleAuthError(error, this.getDashboardData()))
+    return this.http.get(`${this.baseUrl}/dashboard/data`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
     );
   }
 
@@ -49,41 +32,57 @@ export class ApiService {
       }
     });
 
-    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { ...this.getHeaders(), params }).pipe(
-      catchError(error => this.handleAuthError(error, this.searchClothingItems(filters)))
+    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { withCredentials: true, params }).pipe(
+      catchError(this.handleAuthError)
     );
   }
 
-getMyClothingItems(userId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, this.getHeaders());
+  getMyClothingItems(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   addClothingItem(item: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/clothing-items`, item, this.getHeaders());
+    return this.http.post(`${this.baseUrl}/clothing-items`, item, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   updateClothingItem(itemId: number, updatedItem: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/clothing-items/${itemId}`, updatedItem, this.getHeaders());
+    return this.http.put(`${this.baseUrl}/clothing-items/${itemId}`, updatedItem, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   getUserTrades(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/trades`, this.getHeaders());
+    return this.http.get(`${this.baseUrl}/trades`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   updateTradeStatus(tradeId: number, status: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/trades/${tradeId}/status`, { status }, this.getHeaders());
+    return this.http.put(`${this.baseUrl}/trades/${tradeId}/status`, { status }, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   initiateTrade(itemId: number, status: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/trades`, { itemId, status }, this.getHeaders());
+    return this.http.post(`${this.baseUrl}/trades`, { itemId, status }, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   getItemDetails(itemId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/clothing-items/${itemId}`, this.getHeaders());
+    return this.http.get(`${this.baseUrl}/clothing-items/${itemId}`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   checkExistingTrade(itemId: number): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, this.getHeaders());
+    return this.http.get<boolean>(`${this.baseUrl}/trades/check?itemId=${itemId}`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
   getTradeReport(status?: string, startDate?: string, endDate?: string): Observable<any[]> {
@@ -92,14 +91,20 @@ getMyClothingItems(userId: number): Observable<any[]> {
     if (startDate) params = params.set('startDate', startDate);
     if (endDate) params = params.set('endDate', endDate);
 
-    return this.http.get<any[]>(`${this.baseUrl}/trades/report`, { ...this.getHeaders(), params });
+    return this.http.get<any[]>(`${this.baseUrl}/trades/report`, { withCredentials: true, params }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
-  getUnreadNotifications(userId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/notifications/unread?userId=${userId}`, this.getHeaders());
+  getUnreadNotifications(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/notifications/unread`, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 
-  markNotificationsAsRead(userId: number): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/notifications/mark-as-read?userId=${userId}`, {}, this.getHeaders());
+  markNotificationsAsRead(): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/notifications/mark-as-read`, {}, { withCredentials: true }).pipe(
+      catchError(this.handleAuthError)
+    );
   }
 }

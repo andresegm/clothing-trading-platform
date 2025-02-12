@@ -16,12 +16,17 @@
   <!-- Trade Request -->
   <div class="trade-action">
     <button
-      *ngIf="item.userId !== currentUserId"
+      *ngIf="item.userId !== currentUserId && !isTradeRequested"
       (click)="onTradeRequest(item.id)"
-      [disabled]="isTradeRequested"
       class="btn-trade">
       Request Trade
     </button>
-    <p *ngIf="isTradeRequested" class="trade-status">Trade already requested</p>
+
+    <button
+      *ngIf="item.userId !== currentUserId && isTradeRequested"
+      [disabled]="true"
+      class="btn-trade">
+      Trade already requested
+    </button>
   </div>
 </div>

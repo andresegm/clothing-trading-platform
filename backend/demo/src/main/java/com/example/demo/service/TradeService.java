@@ -62,26 +62,30 @@ public class TradeService {
     }
 
     public Trade createTrade(TradeDTO tradeDTO, String initiatorUsername) {
+        // Retrieve the authenticated user
         User initiator = userRepository.findByUsername(initiatorUsername)
                 .orElseThrow(() -> new RuntimeException("User not found: " + initiatorUsername));
 
+        // Fetch the item being traded
         ClothingItem item = clothingItemRepository.findById(tradeDTO.getItemId())
                 .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + tradeDTO.getItemId()));
 
+        // Prevent users from trading their own items
         if (item.getUser().equals(initiator)) {
             throw new RuntimeException("Cannot trade your own item.");
         }
 
+        // Create and save the trade
         Trade trade = new Trade();
         trade.setStatus("Pending");
         trade.setItem(item);
-        trade.setInitiator(initiator);
+        trade.setInitiator(initiator);  // Assign authenticated user as initiator
         trade.setReceiver(item.getUser());
         trade.setTradeDate(LocalDateTime.now());
 
         Trade savedTrade = tradeRepository.save(trade);
 
-        //Notify the receiver
+        // Notify the receiver
         notificationService.createNotification(
                 savedTrade.getReceiver().getId(),
                 "📦 New trade request! " + initiator.getUsername() + " wants to trade for your item: " + item.getTitle()
@@ -94,60 +98,58 @@ public class TradeService {
     public Trade updateTradeStatus(Long id, String action, String username) {
         Trade trade = getTradeByIdEntity(id);
 
+        // Ensure only the initiator or receiver can modify the trade
         if (!trade.getInitiator().getUsername().equals(username) &&
                 !trade.getReceiver().getUsername().equals(username)) {
             throw new RuntimeException("User not authorized to update this trade.");
         }
 
+        // Process the trade status update
         String notificationMessage;
         switch (action.toLowerCase()) {
             case "accept":
-                if (trade.getReceiver().getUsername().equals(username)) {
-                    trade.setStatus("Accepted");
-                    notificationMessage = "✅ Trade accepted! Your trade request for " + trade.getItem().getTitle() + " was accepted.";
-                    notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
-                } else {
+                if (!trade.getReceiver().getUsername().equals(username)) {
                     throw new RuntimeException("Only the receiver can accept trades.");
                 }
+                trade.setStatus("Accepted");
+                notificationMessage = "✅ Trade accepted! Your trade request for " + trade.getItem().getTitle() + " was accepted.";
                 break;
 
             case "decline":
-                if (trade.getReceiver().getUsername().equals(username)) {
-                    trade.setStatus("Cancelled");
-                    notificationMessage = "❌ Trade declined! Your trade request for " + trade.getItem().getTitle() + " was declined.";
-                    notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
-                } else {
+                if (!trade.getReceiver().getUsername().equals(username)) {
                     throw new RuntimeException("Only the receiver can decline trades.");
                 }
+                trade.setStatus("Cancelled");
+                notificationMessage = "❌ Trade declined! Your trade request for " + trade.getItem().getTitle() + " was declined.";
                 break;
 
             case "complete":
-                if (trade.getStatus().equals("Accepted")) {
-                    trade.setStatus("Completed");
-                    trade.getItem().setAvailable(false);
-                    clothingItemRepository.save(trade.getItem());
-
-                    notificationMessage = "🎉 Trade completed! The trade for " + trade.getItem().getTitle() + " has been finalized.";
-                    notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
-                    notificationService.createNotification(trade.getReceiver().getId(), notificationMessage);
-                } else {
+                if (!trade.getStatus().equals("Accepted")) {
                     throw new RuntimeException("Only accepted trades can be completed.");
                 }
+                trade.setStatus("Completed");
+                trade.getItem().setAvailable(false);
+                clothingItemRepository.save(trade.getItem());
+                notificationMessage = "🎉 Trade completed! The trade for " + trade.getItem().getTitle() + " has been finalized.";
                 break;
 
             case "cancel":
                 trade.setStatus("Cancelled");
                 notificationMessage = "⚠️ Trade canceled! The trade for " + trade.getItem().getTitle() + " has been canceled.";
-                notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
-                notificationService.createNotification(trade.getReceiver().getId(), notificationMessage);
                 break;
 
             default:
                 throw new RuntimeException("Invalid action.");
         }
 
-        return tradeRepository.save(trade);
+        // Save and notify
+        Trade updatedTrade = tradeRepository.save(trade);
+        notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
+        notificationService.createNotification(trade.getReceiver().getId(), notificationMessage);
+
+        return updatedTrade;
     }
+
 
 
     public List<TradeDTO> generateTradeReport(String status, LocalDateTime startDate, LocalDateTime endDate) {

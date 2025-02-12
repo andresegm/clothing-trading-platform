@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -12,22 +13,22 @@ export class HeaderComponent implements OnInit {
   notifications: any[] = [];
   unreadCount: number = 0;
   showDropdown: boolean = false;
-  userId: number | null = null;
+  isAuthenticated: boolean = false;
 
-  constructor(private router: Router, private apiService: ApiService) {}
+  constructor(private router: Router, private apiService: ApiService, private authService: AuthService) {}
 
   ngOnInit() {
-    const storedUserId = localStorage.getItem('userId');
-    this.userId = storedUserId && storedUserId !== "null" ? Number(storedUserId) : null;
-
-    console.log('ngOnInit called. Retrieved userId:', this.userId);
-
-    if (this.userId === null) {
-      console.warn('User is not logged in. Skipping protected actions.');
-      return;
-    }
-
-    this.fetchNotifications();
+    this.authService.isLoggedIn().subscribe({
+      next: (isAuthenticated) => {
+        this.isAuthenticated = isAuthenticated;
+        if (this.isAuthenticated) {
+          this.fetchNotifications();
+        }
+      },
+      error: () => {
+        this.isAuthenticated = false;
+      }
+    });
   }
 
   onSearch(): void {
@@ -35,34 +36,37 @@ export class HeaderComponent implements OnInit {
   }
 
   onLogout(): void {
-    localStorage.removeItem('authToken'); // Clear the token
-    localStorage.removeItem('userId'); // Clear userId
-    this.router.navigate(['/login']); // Redirect to login page
+    this.authService.logout();
   }
 
   toggleNotifications(event?: Event) {
     if (event) {
-      event.stopPropagation(); // Prevent closing when clicking inside
+      event.stopPropagation();
     }
     this.showDropdown = !this.showDropdown;
   }
 
   fetchNotifications() {
-    if (this.userId === null) {
+    if (!this.isAuthenticated) {
       console.warn("Skipping notification fetch: User not logged in.");
       return;
     }
 
-    this.apiService.getUnreadNotifications(this.userId).subscribe((data) => {
-      this.notifications = data;
-      this.unreadCount = data.length;
+    this.apiService.getUnreadNotifications().subscribe({
+      next: (data) => {
+        this.notifications = data;
+        this.unreadCount = data.length;
+      },
+      error: (err) => {
+        console.error("Failed to fetch notifications:", err);
+      }
     });
   }
 
   markAsRead(notification: any) {
-    if (this.userId === null) return; // Prevent API call if userId is null
+    if (!this.isAuthenticated) return;
 
-    this.apiService.markNotificationsAsRead(this.userId).subscribe(() => {
+    this.apiService.markNotificationsAsRead().subscribe(() => {
       this.notifications = this.notifications.filter(n => n.id !== notification.id);
       this.unreadCount = this.notifications.length;
     });
@@ -71,9 +75,9 @@ export class HeaderComponent implements OnInit {
   markAllAsRead(event: Event) {
     event.stopPropagation();
 
-    if (this.userId === null) return; // Prevent API call if userId is null
+    if (!this.isAuthenticated) return;
 
-    this.apiService.markNotificationsAsRead(this.userId).subscribe(() => {
+    this.apiService.markNotificationsAsRead().subscribe(() => {
       this.notifications = [];
       this.unreadCount = 0;
     });

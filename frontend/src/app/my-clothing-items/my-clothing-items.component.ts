@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-my-clothing-items',
@@ -17,28 +18,40 @@ export class MyClothingItemsComponent implements OnInit {
     price: null,
   };
   editMode: { [key: number]: boolean } = {};
+  currentUserId: number | null = null;
 
-  constructor(private apiService: ApiService) {
-  }
+  constructor(private apiService: ApiService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    const userId = Number(localStorage.getItem('userId'));
-    console.log('ngOnInit called. Retrieved userId:', userId); // Log userId
-    if (!userId || userId <= 0) {
-      console.error('Invalid userId in localStorage:', userId);
-      alert('User ID is missing or invalid. Please log in again.');
-      return;
-    }
-    this.fetchClothingItems(userId);
+    this.authService.getAuthenticatedUser().subscribe({
+      next: (user) => {
+        if (user && user.id) {
+          this.currentUserId = user.id;
+          console.log("User ID retrieved:", this.currentUserId); // Debugging log
+          this.fetchClothingItems();
+        } else {
+          console.error("User ID is missing!");
+        }
+      },
+      error: (error) => {
+        console.error("Error fetching authenticated user:", error);
+      }
+    });
   }
 
-  fetchClothingItems(userId: number): void {
-    this.apiService.getMyClothingItems(userId).subscribe({
+
+  fetchClothingItems(): void {
+    if (!this.currentUserId) {
+      console.error("Cannot fetch items: User ID is null.");
+      return;
+    }
+
+    this.apiService.getMyClothingItems(this.currentUserId).subscribe({
       next: (items) => {
         this.clothingItems = items;
       },
       error: (error) => {
-        console.error('Error fetching clothing items:', error);
+        console.error("Error fetching clothing items:", error);
       }
     });
   }
@@ -61,21 +74,21 @@ export class MyClothingItemsComponent implements OnInit {
       return;
     }
 
-    const userId = Number(localStorage.getItem('userId'));
-    const itemWithUserId = { ...this.newItem, userId };
+    // Debugging: Log the current user ID before adding the item
+    console.log('Adding item for user ID:', this.currentUserId);
+
+    if (this.currentUserId === null) {
+      console.error("Cannot add item: User ID is null.");
+      return;
+    }
+
+    const itemWithUserId = { ...this.newItem, userId: this.currentUserId };
 
     this.apiService.addClothingItem(itemWithUserId).subscribe(
       () => {
         alert('Clothing item added successfully!');
-        this.fetchClothingItems(userId); // Refresh the list
-        this.newItem = {
-          title: '',
-          description: '',
-          size: '',
-          brand: '',
-          condition: '',
-          price: null,
-        }; // Reset form
+        this.fetchClothingItems(); // Refresh the list
+        this.newItem = { title: '', description: '', size: '', brand: '', condition: '', price: null }; // Reset form
       },
       (error) => {
         console.error('Error adding clothing item:', error);
@@ -94,7 +107,7 @@ export class MyClothingItemsComponent implements OnInit {
       next: (updatedItem) => {
         console.log('Item updated:', updatedItem);
         this.editMode[item.id] = false; // Exit edit mode
-        this.fetchClothingItems(Number(localStorage.getItem('userId'))); // Refresh list
+        this.fetchClothingItems(); // Refresh list
       },
       error: (err) => {
         console.error('Error updating item:', err);

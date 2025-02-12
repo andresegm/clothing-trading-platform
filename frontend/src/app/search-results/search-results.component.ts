@@ -32,9 +32,14 @@ export class SearchResultsComponent implements OnInit {
   }
 
   fetchItems(): void {
-    this.apiService.searchClothingItems(this.filters).subscribe((data) => {
-      this.clothingItems = data;
-      this.searched = true;
+    this.apiService.searchClothingItems(this.filters).subscribe({
+      next: (data) => {
+        this.clothingItems = data;
+        this.searched = true;
+      },
+      error: (err) => {
+        console.error('Error fetching search results:', err);
+      }
     });
   }
 

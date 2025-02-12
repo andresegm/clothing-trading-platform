@@ -37,10 +37,10 @@ export class RegisterComponent {
     };
 
     this.authService.register(registerData).subscribe({
-      next: (response) => {
-        console.log('Registration successful:', response);
+      next: () => {
+        console.log('Registration successful');
         alert('Registration successful! You can now log in.');
-        this.router.navigate(['/login']); // Redirect to login page
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Registration failed:', err);

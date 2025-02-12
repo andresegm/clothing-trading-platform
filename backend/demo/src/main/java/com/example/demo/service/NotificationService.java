@@ -17,7 +17,7 @@ public class NotificationService {
         return notificationRepository.findByUserIdAndIsReadFalse(userId);
     }
 
-    public void markNotificationsAsRead(Long userId) {
+    public void markAllAsRead(Long userId) {
         List<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalse(userId);
         notifications.forEach(n -> n.setIsRead(true));
         notificationRepository.saveAll(notifications);

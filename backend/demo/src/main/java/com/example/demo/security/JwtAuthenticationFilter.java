@@ -50,7 +50,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .getBody();
 
                 String username = claims.getSubject();
-                List<String> roles = claims.get("roles", List.class);
+                Object rolesClaim = claims.get("roles");
+
+                List<String> roles;
+                if (rolesClaim instanceof List) {
+                    roles = ((List<?>) rolesClaim).stream()
+                            .map(Object::toString)
+                            .collect(Collectors.toList());
+                } else {
+                    roles = List.of();
+                }
+
 
                 List<GrantedAuthority> authorities = roles.stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
@@ -62,9 +72,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .authorities(authorities)
                         .build();
 
-                SecurityContextHolder.getContext().setAuthentication(
-                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities)
-                );
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+                authentication.setDetails(request);
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (ExpiredJwtException e) {
                 System.out.println("JWT expired: " + e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -7,8 +7,13 @@ import com.example.demo.service.ClothingItemService;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.Authentication;
+
 
 import java.util.List;
 
@@ -23,8 +28,18 @@ public class ClothingItemController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<ClothingItemDTO> addClothingItem(@Valid @RequestBody ClothingItemDTO clothingItemDTO) {
-        User user = userService.getUserEntityById(clothingItemDTO.getUserId());
+    public ResponseEntity<ClothingItemDTO> addClothingItem(@Valid @RequestBody ClothingItemDTO clothingItemDTO, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userService.findByUsername(userDetails.getUsername());
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
         ClothingItem clothingItem = new ClothingItem();
         clothingItem.setTitle(clothingItemDTO.getTitle());
         clothingItem.setDescription(clothingItemDTO.getDescription());
@@ -32,10 +47,12 @@ public class ClothingItemController {
         clothingItem.setBrand(clothingItemDTO.getBrand());
         clothingItem.setCondition(clothingItemDTO.getCondition());
         clothingItem.setPrice(clothingItemDTO.getPrice());
-        clothingItem.setUser(user);
+        clothingItem.setUser(user); // Assigns item to authenticated user
+
         ClothingItem savedItem = clothingItemService.saveClothingItem(clothingItem);
         return ResponseEntity.ok(clothingItemService.convertToDTO(savedItem));
     }
+
 
     @GetMapping
     public ResponseEntity<List<ClothingItemDTO>> getAllClothingItems() {
