@@ -94,7 +94,6 @@ public class TradeService {
         return savedTrade;
     }
 
-
     public Trade updateTradeStatus(Long id, String action, String username) {
         Trade trade = getTradeByIdEntity(id);
 
@@ -104,8 +103,9 @@ public class TradeService {
             throw new RuntimeException("User not authorized to update this trade.");
         }
 
-        // Process the trade status update
         String notificationMessage;
+        Long notifyUserId = null; // Store the opposite party’s ID
+
         switch (action.toLowerCase()) {
             case "accept":
                 if (!trade.getReceiver().getUsername().equals(username)) {
@@ -113,6 +113,7 @@ public class TradeService {
                 }
                 trade.setStatus("Accepted");
                 notificationMessage = "✅ Trade accepted! Your trade request for " + trade.getItem().getTitle() + " was accepted.";
+                notifyUserId = trade.getInitiator().getId(); // Notify initiator only
                 break;
 
             case "decline":
@@ -121,6 +122,7 @@ public class TradeService {
                 }
                 trade.setStatus("Cancelled");
                 notificationMessage = "❌ Trade declined! Your trade request for " + trade.getItem().getTitle() + " was declined.";
+                notifyUserId = trade.getInitiator().getId(); // Notify initiator only
                 break;
 
             case "complete":
@@ -131,26 +133,31 @@ public class TradeService {
                 trade.getItem().setAvailable(false);
                 clothingItemRepository.save(trade.getItem());
                 notificationMessage = "🎉 Trade completed! The trade for " + trade.getItem().getTitle() + " has been finalized.";
+                notifyUserId = trade.getInitiator().getUsername().equals(username)
+                        ? trade.getReceiver().getId() // If initiator completes, notify receiver
+                        : trade.getInitiator().getId(); // If receiver completes, notify initiator
                 break;
 
             case "cancel":
                 trade.setStatus("Cancelled");
                 notificationMessage = "⚠️ Trade canceled! The trade for " + trade.getItem().getTitle() + " has been canceled.";
+                notifyUserId = trade.getInitiator().getUsername().equals(username)
+                        ? trade.getReceiver().getId() // If initiator cancels, notify receiver
+                        : trade.getInitiator().getId(); // If receiver cancels, notify initiator
                 break;
 
             default:
                 throw new RuntimeException("Invalid action.");
         }
 
-        // Save and notify
+        // Save trade and send notification to the opposite party
         Trade updatedTrade = tradeRepository.save(trade);
-        notificationService.createNotification(trade.getInitiator().getId(), notificationMessage);
-        notificationService.createNotification(trade.getReceiver().getId(), notificationMessage);
+        if (notifyUserId != null) {
+            notificationService.createNotification(notifyUserId, notificationMessage);
+        }
 
         return updatedTrade;
     }
-
-
 
     public List<TradeDTO> generateTradeReport(String status, LocalDateTime startDate, LocalDateTime endDate) {
         return tradeRepository.findAll().stream()
