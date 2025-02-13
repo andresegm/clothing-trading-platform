@@ -1,48 +1,56 @@
-<header class="site-header">
-  <div class="brand">
-    <a routerLink="/home" class="logo">Clothing Trade</a>
-    <span class="slogan">Trade. Connect. Refresh Your Wardrobe.</span>
-  </div>
-
-  <nav class="main-nav">
-    <a routerLink="/home" routerLinkActive="active">Home</a>
-    <a routerLink="/search" routerLinkActive="active">Search</a>
-    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-    <a routerLink="/my-clothing-items" routerLinkActive="active">My Clothing Items</a>
-    <a routerLink="/my-trades" routerLinkActive="active">My Trades</a>
-  </nav>
-
-  <div class="header-actions">
-    <!-- Notifications Dropdown -->
-    <div class="notification-container">
-      <div class="notification-icon" (click)="toggleNotifications()">
-        <mat-icon>notifications</mat-icon>
-        <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
-      </div>
-
-      <div *ngIf="showDropdown" class="notification-dropdown" (click)="toggleNotifications($event)">
-      <p *ngIf="notifications.length === 0" class="dropdown-item">No new notifications</p>
-
-        <div *ngFor="let notification of notifications" class="dropdown-item" (click)="markAsRead(notification)">
-          {{ notification.message }}
-        </div>
-
-        <div class="dropdown-footer" *ngIf="notifications.length > 0">
-          <button class="mark-read-btn" (click)="markAllAsRead($event)">Mark all as read</button>
-        </div>
-      </div>
+<header class="site-header" [ngClass]="{ 'scrolled': isScrolled }">
+  <div class="header-container">
+    <!-- Brand -->
+    <div class="brand">
+      <a routerLink="/home" class="logo">Clothing Trade</a>
+      <span class="slogan">Trade. Connect. Refresh Your Wardrobe.</span>
     </div>
 
-    <form class="search-form" (ngSubmit)="onSearch()">
-      <input
-        type="text"
-        placeholder="Search by title..."
-        [(ngModel)]="searchQuery"
-        name="searchQuery"
-      />
-      <button type="submit">Search</button>
-    </form>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" (click)="toggleMenu()">☰</button>
 
-    <button (click)="onLogout()" class="btn-logout">Logout</button>
+    <!-- Navigation -->
+    <nav class="main-nav" [ngClass]="{ 'active': isMenuOpen }">
+      <a routerLink="/home" routerLinkActive="active" (click)="closeMenu()">Home</a>
+      <a routerLink="/search" routerLinkActive="active" (click)="closeMenu()">Search</a>
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Dashboard</a>
+      <a routerLink="/my-clothing-items" routerLinkActive="active" (click)="closeMenu()">My Clothing Items</a>
+      <a routerLink="/my-trades" routerLinkActive="active" (click)="closeMenu()">My Trades</a>
+    </nav>
+
+    <!-- Right Actions -->
+    <div class="header-actions">
+      <!-- Notifications Dropdown (Restored Box Below Header) -->
+      <div class="notification-container">
+        <div class="notification-icon" (click)="toggleNotifications()">
+          <mat-icon>notifications</mat-icon>
+          <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
+        </div>
+
+        <div *ngIf="showDropdown" class="notification-dropdown">
+          <p *ngIf="notifications.length === 0" class="dropdown-item">No new notifications</p>
+
+          <div *ngFor="let notification of notifications" class="dropdown-item" (click)="markAsRead(notification)">
+            {{ notification.message }}
+          </div>
+
+          <div class="dropdown-footer" *ngIf="notifications.length > 0">
+            <button class="mark-read-btn" (click)="markAllAsRead($event)">Mark all as read</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <form class="search-form" (ngSubmit)="onSearch()">
+        <input type="text" placeholder="Search..." [(ngModel)]="searchQuery" name="searchQuery" />
+        <button type="submit">Search</button>
+      </form>
+
+      <!-- Profile/Login -->
+      <div class="profile-menu">
+        <button *ngIf="!isAuthenticated" (click)="onLogin()" class="btn-login">Login</button>
+        <button *ngIf="isAuthenticated" (click)="onLogout()" class="btn-logout">Logout</button>
+      </div>
+    </div>
   </div>
 </header>

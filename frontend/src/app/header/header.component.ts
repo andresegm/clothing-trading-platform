@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
@@ -14,6 +14,8 @@ export class HeaderComponent implements OnInit {
   unreadCount: number = 0;
   showDropdown: boolean = false;
   isAuthenticated: boolean = false;
+  isMenuOpen: boolean = false;
+  isScrolled: boolean = false;
 
   constructor(private router: Router, private apiService: ApiService, private authService: AuthService) {}
 
@@ -81,5 +83,30 @@ export class HeaderComponent implements OnInit {
       this.notifications = [];
       this.unreadCount = 0;
     });
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 50;
+  }
+
+  onLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeNotificationsOnClickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.notification-container')) {
+      this.showDropdown = false;
+    }
   }
 }

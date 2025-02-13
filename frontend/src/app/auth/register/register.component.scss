@@ -1,15 +1,20 @@
 .register-container {
-  max-width: 400px;
+  max-width: 90%;
+  width: 400px;
   margin: 3rem auto;
   padding: 2rem;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    margin: 2rem auto;
+  }
+
   h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     color: #007bff;
     margin-bottom: 1.5rem;
   }
@@ -21,35 +26,50 @@
 
     .form-group {
       position: relative;
+      text-align: left;
 
       input {
         width: 100%;
         padding: 0.75rem;
         font-size: 1rem;
         border: 1px solid #ccc;
-        border-radius: 4px;
-        transition: border-color 0.3s, box-shadow 0.3s;
+        border-radius: 6px;
+        transition: 0.3s ease-in-out;
 
         &:focus {
           border-color: #007bff;
           outline: none;
-          box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+          box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
         }
+      }
+
+      .error {
+        display: block;
+        font-size: 0.85rem;
+        color: #dc3545;
+        margin-top: 0.25rem;
       }
     }
 
     .btn-register {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
+      padding: 0.85rem;
+      font-size: 1.1rem;
+      font-weight: bold;
       color: white;
-      background-color: #007bff;
+      background: linear-gradient(to right, #007bff, #0056b3);
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: 0.3s ease-in-out;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 
       &:hover {
-        background-color: #0056b3;
+        background: linear-gradient(to right, #0056b3, #004494);
+      }
+
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
       }
     }
   }
@@ -62,6 +82,7 @@
     a {
       color: #007bff;
       text-decoration: none;
+      font-weight: 500;
 
       &:hover {
         text-decoration: underline;
