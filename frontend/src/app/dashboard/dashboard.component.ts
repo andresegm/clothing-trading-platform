@@ -39,16 +39,16 @@ export class DashboardComponent implements OnInit {
   }
 
   checkAdminRole(): void {
-    this.apiService.getUserTrades().subscribe({
-      next: (trades) => {
-        // Assuming the API returns user details including roles
-        this.isAdmin = trades.user?.roles.includes('ADMIN');
+    this.authService.getAuthenticatedUser().subscribe({
+      next: (user) => {
+        this.isAdmin = user.roles.includes('ADMIN');
       },
       error: () => {
         this.isAdmin = false;
       },
     });
   }
+
 
   generateReport(): void {
     this.apiService.getTradeReport().subscribe({
