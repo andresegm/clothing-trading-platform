@@ -1,40 +1,60 @@
 .item-details {
-  max-width: 600px;
-  margin: 2rem auto;
+  max-width: 700px;
+  margin: 80px auto 2rem auto; // Pushes content below fixed header
   padding: 2rem;
-  background: linear-gradient(135deg, #002c5a, #6c757d);
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin: 70px auto 2rem;
+  }
 
   .item-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     margin-bottom: 1.5rem;
 
     h2 {
       font-size: 2rem;
-      color: #ffffff;
+      font-weight: bold;
+      flex: 1;
+      text-align: left;
+      color: white;
     }
 
     .item-price {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: bold;
-      color: #ffffff;
+      color: #fdbb2d;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
     }
   }
 
   .item-info {
     margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    text-align: left;
 
     p {
       margin: 0.5rem 0;
       font-size: 1rem;
-      color: #ffffff;
+      color: #f5f5f5;
 
       strong {
-        color: #acacac;
+        color: #fdbb2d;
       }
     }
   }
@@ -42,33 +62,51 @@
   .trade-action {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
 
     .btn-trade {
       padding: 0.75rem 1.5rem;
-      background-color: #007bff;
+      font-size: 1rem;
+      font-weight: bold;
       color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 1rem;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background 0.3s ease, transform 0.2s ease-in-out;
+      width: 100%;
+      max-width: 250px;
+
+      background: linear-gradient(135deg, #007bff, #0056b3);
 
       &:hover {
-        background-color: #0056b3;
+        background: linear-gradient(135deg, #0056b3, #003c80);
+        transform: scale(1.05);
       }
 
       &:disabled {
-        background-color: #6c757d;
+        background: #6c757d;
         cursor: not-allowed;
+        opacity: 0.7;
       }
     }
 
     .trade-status {
-      margin-top: 1rem;
       font-size: 0.9rem;
-      color: #6c757d;
+      color: #e1e1e1;
       font-style: italic;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }

@@ -3,7 +3,7 @@
   top: 0;
   width: 100%;
   height: 70px;
-  background: #2a9d8f;
+  background: #54736e;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,7 +13,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
   &.scrolled {
-    background: rgba(42, 157, 143, 0.7);
+    background: #54736e;
     backdrop-filter: blur(10px);
     height: 60px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);

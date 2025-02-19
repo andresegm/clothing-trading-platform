@@ -111,4 +111,17 @@
   <ng-template #noResults>
     <p class="no-results">No items found. Try adjusting your filters.</p>
   </ng-template>
+
+  <div class="pagination">
+    <button (click)="prevPage()" [disabled]="currentPage === 1">« Prev</button>
+
+    <button *ngFor="let page of [].constructor(totalPages); let i = index"
+            (click)="goToPage(i + 1)"
+            [class.active]="currentPage === i + 1">
+      {{ i + 1 }}
+    </button>
+
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next »</button>
+  </div>
+
 </div>

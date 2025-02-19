@@ -11,6 +11,10 @@ export class SearchResultsComponent implements OnInit {
   clothingItems: any[] = [];
   searched = false;
 
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 6;
+
   // Filters object
   filters = {
     title: '',
@@ -25,7 +29,6 @@ export class SearchResultsComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      // Pre-fill title filter from query params
       this.filters.title = params['title'] || '';
       this.fetchItems();
     });
@@ -36,6 +39,7 @@ export class SearchResultsComponent implements OnInit {
       next: (data) => {
         this.clothingItems = data;
         this.searched = true;
+        this.currentPage = 1;
       },
       error: (err) => {
         console.error('Error fetching search results:', err);
@@ -44,20 +48,41 @@ export class SearchResultsComponent implements OnInit {
   }
 
   applyFilters(): void {
-    // Validate filter consistency
     if (this.filters.minPrice && this.filters.maxPrice && this.filters.minPrice > this.filters.maxPrice) {
       alert('Min Price cannot be greater than Max Price.');
       return;
     }
-
-    // Apply filters if valid
     this.fetchItems();
   }
-
 
   resetFilters(): void {
-    this.filters = {title: '', brand: '', size: '', minPrice: null, maxPrice: null, condition: '' };
+    this.filters = { title: '', brand: '', size: '', minPrice: null, maxPrice: null, condition: '' };
     this.fetchItems();
   }
 
+  // Pagination Logic
+  get paginatedItems(): any[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.clothingItems.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.clothingItems.length / this.itemsPerPage);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+  }
 }
