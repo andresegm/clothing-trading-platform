@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 
@@ -61,16 +64,29 @@ public class ClothingItemController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<ClothingItemDTO>> filterClothingItems(
+    public ResponseEntity<?> filterClothingItems(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String brand,
-            @RequestParam(required = false) String size,
+            @RequestParam(required = false) String size,  //
             @RequestParam(required = false) String condition,
             @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice) {
-        List<ClothingItemDTO> items = clothingItemService.filterClothingItems(title, brand, size, condition, minPrice, maxPrice);
-        return ResponseEntity.ok(items);
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "6") int pageSize  //
+    ) {
+        Page<ClothingItemDTO> result = clothingItemService.filterClothingItems(
+                title, brand, size, condition, minPrice, maxPrice, page, pageSize
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", result.getContent());
+        response.put("totalItems", result.getTotalElements());
+        response.put("totalPages", result.getTotalPages());
+        response.put("currentPage", result.getNumber() + 1);
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ClothingItemDTO> getClothingItemById(@PathVariable Long id) {

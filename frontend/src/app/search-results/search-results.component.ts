@@ -2,6 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
 
+interface SearchResponse {
+  items: any[];
+  totalPages: number;
+  totalItems: number;
+  currentPage: number;
+}
+
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
@@ -13,7 +20,10 @@ export class SearchResultsComponent implements OnInit {
 
   // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 6;
+  itemsPerPage: number = 6; // Default items per page
+  totalPages: number = 1;
+
+  pageSizes: number[] = [6, 12, 21]; // Allowed page sizes
 
   // Filters object
   filters = {
@@ -35,11 +45,17 @@ export class SearchResultsComponent implements OnInit {
   }
 
   fetchItems(): void {
-    this.apiService.searchClothingItems(this.filters).subscribe({
-      next: (data) => {
-        this.clothingItems = data;
+    const params = {
+      ...this.filters,
+      page: this.currentPage,
+      pageSize: this.itemsPerPage
+    };
+
+    this.apiService.searchClothingItems(params).subscribe({
+      next: (data: SearchResponse) => {
+        this.clothingItems = data.items;
+        this.totalPages = data.totalPages;
         this.searched = true;
-        this.currentPage = 1;
       },
       error: (err) => {
         console.error('Error fetching search results:', err);
@@ -52,37 +68,42 @@ export class SearchResultsComponent implements OnInit {
       alert('Min Price cannot be greater than Max Price.');
       return;
     }
+    this.currentPage = 1;
     this.fetchItems();
   }
 
   resetFilters(): void {
     this.filters = { title: '', brand: '', size: '', minPrice: null, maxPrice: null, condition: '' };
+    this.currentPage = 1;
     this.fetchItems();
-  }
-
-  // Pagination Logic
-  get paginatedItems(): any[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.clothingItems.slice(start, start + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.clothingItems.length / this.itemsPerPage);
   }
 
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
-      this.currentPage++;
+      this.goToPage(this.currentPage + 1);
     }
   }
 
   prevPage(): void {
     if (this.currentPage > 1) {
-      this.currentPage--;
+      this.goToPage(this.currentPage - 1);
     }
   }
 
   goToPage(page: number): void {
-    this.currentPage = page;
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.fetchItems();
+    }
+  }
+
+  // Update the number of items per page
+  updatePageSize(): void {
+    this.currentPage = 1; // Reset to first page when changing page size
+    this.fetchItems();
+  }
+
+  getPageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 }

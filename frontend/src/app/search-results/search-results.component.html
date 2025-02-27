@@ -113,15 +113,26 @@
   </ng-template>
 
   <div class="pagination">
+    <!-- Previous Button -->
     <button (click)="prevPage()" [disabled]="currentPage === 1">« Prev</button>
 
-    <button *ngFor="let page of [].constructor(totalPages); let i = index"
-            (click)="goToPage(i + 1)"
-            [class.active]="currentPage === i + 1">
-      {{ i + 1 }}
+    <!-- Page Numbers -->
+    <button *ngFor="let page of getPageNumbers()"
+            (click)="goToPage(page)"
+            [class.active]="currentPage === page">
+      {{ page }}
     </button>
 
+    <!-- Next Button -->
     <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next »</button>
+
+    <!-- Page Size Selector -->
+    <div class="page-size-selector">
+      <label for="pageSize">Items per page:</label>
+      <select id="pageSize" [(ngModel)]="itemsPerPage" (change)="updatePageSize()">
+        <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+      </select>
+    </div>
   </div>
 
 </div>

@@ -3,6 +3,13 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from "../../environments/environment";
 
+interface SearchResponse {
+  items: any[];
+  totalPages: number;
+  totalItems: number;
+  currentPage: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,7 +31,17 @@ export class ApiService {
     );
   }
 
-  searchClothingItems(filters: { title?: string; brand?: string; size?: string; condition?: string; minPrice?: number | null; maxPrice?: number | null; }): Observable<any[]> {
+  searchClothingItems(filters: {
+    condition: string;
+    size: string;
+    minPrice: null;
+    maxPrice: null;
+    page: number;
+    pageSize: number;
+    title: string;
+    brand: string;
+  }): Observable<SearchResponse> {
+
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
@@ -32,7 +49,7 @@ export class ApiService {
       }
     });
 
-    return this.http.get<any[]>(`${this.baseUrl}/clothing-items/filter`, { withCredentials: true, params }).pipe(
+    return this.http.get<SearchResponse>(`${this.baseUrl}/clothing-items/filter`, { withCredentials: true, params }).pipe(
       catchError(this.handleAuthError)
     );
   }

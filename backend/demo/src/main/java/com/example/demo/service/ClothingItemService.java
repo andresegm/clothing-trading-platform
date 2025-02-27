@@ -7,6 +7,11 @@ import com.example.demo.repository.BaseRepository;
 import com.example.demo.repository.ClothingItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,22 +45,20 @@ public class ClothingItemService {
         return convertToDTO(fetchEntity(clothingItemRepository, id, "ClothingItem"));
     }
 
-    public List<ClothingItemDTO> filterClothingItems(String title, String brand, String size, String condition, Double minPrice, Double maxPrice) {
-        logger.debug("Filtering clothing items with params - title: {}, brand: {}, size: {}, condition: {}, minPrice: {}, maxPrice: {}",
-                title, brand, size, condition, minPrice, maxPrice);
+    public Page<ClothingItemDTO> filterClothingItems(
+            String title, String brand, String size, String condition,
+            Double minPrice, Double maxPrice, int page, int pageSize) {
 
-        List<ClothingItem> items = clothingItemRepository.filterClothingItems(title, brand, size, condition, minPrice, maxPrice);
+        logger.debug("Filtering clothing items with pagination - title: {}, brand: {}, size: {}, condition: {}, minPrice: {}, maxPrice: {}, page: {}, pageSize: {}",
+                title, brand, size, condition, minPrice, maxPrice, page, pageSize);
 
-        if (items.isEmpty()) {
-            logger.warn("No clothing items found matching the given criteria.");
-        } else {
-            logger.debug("Found {} clothing items matching the criteria.", items.size());
-        }
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("dateAdded").descending());
+        Page<ClothingItem> items = clothingItemRepository.filterClothingItems(title, brand, size, condition, minPrice, maxPrice, pageable);
 
-        return items.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return items.map(this::convertToDTO);
     }
+
+
 
     public ClothingItem updateClothingItem(Long id, ClothingItemDTO clothingItemDTO) {
         ClothingItem item = clothingItemRepository.findById(id)
