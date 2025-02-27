@@ -22,7 +22,7 @@ public interface TradeRepository extends BaseRepository<Trade, Long> {
             @Param("endDate") LocalDate endDate
     );
 
-    @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")
+    @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC LIMIT 10")
     List<Trade> findTop10ByUserOrderByTradeDateDesc(@Param("user") User user);
 
     @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")

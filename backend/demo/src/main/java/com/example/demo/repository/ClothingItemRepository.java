@@ -27,6 +27,6 @@ public interface ClothingItemRepository extends BaseRepository<ClothingItem, Lon
     );
 
     // Query to fetch the top 10 most recent clothing items uploaded by a user
-    @Query("SELECT c FROM ClothingItem c WHERE c.user = :user ORDER BY c.dateAdded DESC")
+    @Query("SELECT c FROM ClothingItem c WHERE c.user = :user ORDER BY c.dateAdded DESC LIMIT 10")
     List<ClothingItem> findTop10ByUserOrderByDateAddedDesc(@Param("user") User user);
 }
