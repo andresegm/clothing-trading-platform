@@ -4,7 +4,6 @@
   <!-- Dashboard Header -->
   <div class="dashboard-header">
     <h1>Welcome, {{ user?.username }}</h1>
-    <button class="btn-logout" (click)="onLogout()">Logout</button>
   </div>
 
   <!-- Error Message -->
@@ -12,50 +11,61 @@
     {{ error }}
   </div>
 
-  <!-- User Info Section -->
-  <section *ngIf="user" class="user-info">
-    <h2>Your Profile</h2>
-    <div class="user-details">
-      <div class="profile-avatar">
-        <mat-icon class="avatar-icon">person</mat-icon>
+  <!-- GRID CONTAINER (Profile, Recent Items & Trades) -->
+  <div class="dashboard-grid">
+
+    <!-- USER PROFILE (Now Styled Properly) -->
+    <section *ngIf="user" class="profile-card">
+      <h2>Your Profile</h2>
+      <div class="user-details">
+        <div class="profile-avatar">
+          <mat-icon class="avatar-icon">person</mat-icon>
+        </div>
+        <div class="user-text">
+          <p><strong>Username:</strong> {{ user.username }}</p>
+          <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
       </div>
-      <div class="user-text">
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Recent Clothing Items Section -->
-  <section class="recent-section">
-    <h2>Recent Clothing Items</h2>
-    <ul *ngIf="recentClothingItems?.length; else noItems" class="items-list">
-      <li *ngFor="let item of recentClothingItems" class="item-card">
-        <span class="item-title">{{ item.title }}</span>
-        <span class="item-details">({{ item.size }}) - ${{ item.price }}</span>
-      </li>
-    </ul>
-    <ng-template #noItems>
-      <p class="no-items-msg">No recent clothing items to display.</p>
-    </ng-template>
-  </section>
+    <!-- RECENT ITEMS & TRADES (Side-by-Side Layout) -->
+    <div class="recent-container">
 
-  <!-- Recent Trades Section -->
-  <section class="recent-section">
-    <h2>Recent Trades</h2>
-    <ul *ngIf="recentTrades?.length; else noTrades" class="trades-list">
-      <li *ngFor="let trade of recentTrades" class="trade-card">
-        <span class="trade-status">{{ trade.status }}: </span>
-        <span class="trade-item">{{ trade.itemTitle }}</span>
-      </li>
-    </ul>
-    <ng-template #noTrades>
-      <p class="no-trades-msg">No recent trades to display.</p>
-    </ng-template>
-  </section>
+      <!-- Recent Clothing Items -->
+      <section class="recent-section">
+        <h2>Recent Clothing Items</h2>
+        <ul *ngIf="recentClothingItems?.length; else noItems" class="items-list">
+          <li *ngFor="let item of recentClothingItems" class="item-card">
+            <span class="item-title">{{ item.title }}</span>
+            <span class="item-details">({{ item.size }}) - ${{ item.price }}</span>
+          </li>
+        </ul>
+        <ng-template #noItems>
+          <p class="no-items-msg">No recent clothing items to display.</p>
+        </ng-template>
+      </section>
 
+      <!-- Recent Trades -->
+      <section class="recent-section">
+        <h2>Recent Trades</h2>
+        <ul *ngIf="recentTrades?.length; else noTrades" class="trades-list">
+          <li *ngFor="let trade of recentTrades" class="trade-card">
+            <span class="trade-status">{{ trade.status }}: </span>
+            <span class="trade-item">{{ trade.itemTitle }}</span>
+          </li>
+        </ul>
+        <ng-template #noTrades>
+          <p class="no-trades-msg">No recent trades to display.</p>
+        </ng-template>
+      </section>
+
+    </div> <!-- End of recent-container -->
+
+  </div> <!-- End of dashboard-grid -->
+
+  <!-- ADMIN ACTIONS -->
   <div class="admin-actions" *ngIf="isAdmin">
     <button (click)="generateReport()" class="btn-report">Generate Trade Report</button>
   </div>
-</div>
 
+</div> <!-- End of Dashboard -->

@@ -20,10 +20,10 @@ export class SearchResultsComponent implements OnInit {
 
   // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 6; // Default items per page
+  itemsPerPage: number = 10; // Default items per page
   totalPages: number = 1;
 
-  pageSizes: number[] = [6, 12, 21]; // Allowed page sizes
+  pageSizes: number[] = [10, 20, 30]; // Allowed page sizes
 
   // Filters object
   filters = {
