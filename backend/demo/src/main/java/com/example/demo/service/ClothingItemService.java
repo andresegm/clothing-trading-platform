@@ -35,11 +35,13 @@ public class ClothingItemService {
         return clothingItemRepository.save(clothingItem);
     }
 
-    public List<ClothingItemDTO> getAllClothingItems() {
-        return clothingItemRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<ClothingItemDTO> getAllClothingItems(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("dateAdded").descending());
+        Page<ClothingItem> itemsPage = clothingItemRepository.findAll(pageable);
+        return itemsPage.map(this::convertToDTO);
     }
+
+
 
     public ClothingItemDTO getClothingItemById(Long id) {
         return convertToDTO(fetchEntity(clothingItemRepository, id, "ClothingItem"));
@@ -98,7 +100,16 @@ public class ClothingItemService {
                 .orElseThrow(() -> new RuntimeException(entityName + " not found with id: " + id));
     }
 
-    public List<ClothingItem> findRecentByUser(User user) {
-        return clothingItemRepository.findTop10ByUserOrderByDateAddedDesc(user);
+    public List<ClothingItemDTO> findRecentByUser(User user, Pageable pageable) {
+        return clothingItemRepository.findTop6ByUserOrderByDateAddedDesc(user, pageable).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
+
+    public List<ClothingItemDTO> findAllByUser(User user, Pageable pageable) {
+        return clothingItemRepository.findAllByUserOrderByDateAddedDesc(user, pageable).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -4,6 +4,7 @@ import com.example.demo.model.Trade;
 import com.example.demo.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,8 +23,8 @@ public interface TradeRepository extends BaseRepository<Trade, Long> {
             @Param("endDate") LocalDate endDate
     );
 
-    @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC LIMIT 6")
-    List<Trade> findTop10ByUserOrderByTradeDateDesc(@Param("user") User user);
+    @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")
+    List<Trade> findRecentTradesByUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT t FROM Trade t WHERE t.initiator = :user OR t.receiver = :user ORDER BY t.tradeDate DESC")
     List<Trade> findTradesForUser(@Param("user") User user);

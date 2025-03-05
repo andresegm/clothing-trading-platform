@@ -58,10 +58,21 @@ public class ClothingItemController {
 
 
     @GetMapping
-    public ResponseEntity<List<ClothingItemDTO>> getAllClothingItems() {
-        List<ClothingItemDTO> items = clothingItemService.getAllClothingItems();
-        return ResponseEntity.ok(items);
+    public ResponseEntity<?> getAllClothingItems(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
+        Page<ClothingItemDTO> itemsPage = clothingItemService.getAllClothingItems(page, pageSize);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", itemsPage.getContent());
+        response.put("totalItems", itemsPage.getTotalElements());
+        response.put("totalPages", itemsPage.getTotalPages());
+        response.put("currentPage", itemsPage.getNumber() + 1);
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/filter")
     public ResponseEntity<?> filterClothingItems(

@@ -7,6 +7,7 @@ import com.example.demo.model.User;
 import com.example.demo.service.ClothingItemService;
 import com.example.demo.service.TradeService;
 import com.example.demo.service.UserService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +50,8 @@ public class DashboardController {
 
 
         // Fetch recent clothing items
-        List<ClothingItemDTO> recentItems = clothingItemService.findRecentByUser(user).stream()
+// Fetch recent clothing items
+        List<ClothingItemDTO> recentItems = clothingItemService.findRecentByUser(user, PageRequest.of(0, 6)).stream()
                 .map(item -> new ClothingItemDTO(
                         item.getId(),
                         item.getTitle(),
@@ -58,26 +60,13 @@ public class DashboardController {
                         item.getBrand(),
                         item.getCondition(),
                         item.getPrice(),
-                        item.getUser().getId(),
+                        user.getId(), // FIX: Use user.getId() directly instead of item.getUser().getId()
                         item.isAvailable()
                 ))
                 .toList();
 
         // Fetch recent trades
-        List<TradeDTO> recentTrades = tradeService.findRecentByUser(user).stream()
-                .map(trade -> new TradeDTO(
-                        trade.getId(),
-                        trade.getStatus(),
-                        trade.getItem().getId(),
-                        trade.getItem().getTitle(),
-                        trade.getInitiator().getId(),
-                        trade.getInitiator().getUsername(),
-                        trade.getInitiator().getEmail(),
-                        trade.getReceiver().getId(),
-                        trade.getReceiver().getUsername(),
-                        trade.getTradeDate()
-                ))
-                .toList();
+        List<TradeDTO> recentTrades = tradeService.findRecentByUser(user);
 
 
         // Create the response

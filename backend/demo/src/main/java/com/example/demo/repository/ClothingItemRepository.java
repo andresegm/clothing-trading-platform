@@ -30,8 +30,10 @@ public interface ClothingItemRepository extends BaseRepository<ClothingItem, Lon
             Pageable pageable
     );
 
+    @Query("SELECT c FROM ClothingItem c WHERE c.user = :user ORDER BY c.dateAdded DESC")
+    Page<ClothingItem> findTop6ByUserOrderByDateAddedDesc(@Param("user") User user, Pageable pageable);
 
-    // Query to fetch the top 10 most recent clothing items uploaded by a user
-    @Query("SELECT c FROM ClothingItem c WHERE c.user = :user ORDER BY c.dateAdded DESC LIMIT 6")
-    List<ClothingItem> findTop10ByUserOrderByDateAddedDesc(@Param("user") User user);
+    @Query("SELECT c FROM ClothingItem c WHERE c.user = :user ORDER BY c.dateAdded DESC")
+    Page<ClothingItem> findAllByUserOrderByDateAddedDesc(@Param("user") User user, Pageable pageable);
+
 }

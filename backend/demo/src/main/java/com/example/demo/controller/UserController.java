@@ -10,8 +10,14 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -55,15 +61,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}/clothing-items")
-    public ResponseEntity<List<ClothingItemDTO>> getUserClothingItems(@PathVariable Long id) {
-        // Fetch the User entity by ID
+    public ResponseEntity<?> getUserClothingItems(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
         User user = userService.getUserEntityById(id);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("dateAdded").descending());
+        Page<ClothingItem> clothingItems = clothingItemRepository.findAllByUserOrderByDateAddedDesc(user, pageable);
 
-        // Fetch the clothing items for this user
-        List<ClothingItem> clothingItems = clothingItemRepository.findTop10ByUserOrderByDateAddedDesc(user);
-
-        // Convert entities to DTOs
-        List<ClothingItemDTO> clothingItemDTOs = clothingItems.stream()
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", clothingItems.getContent().stream()
                 .map(item -> new ClothingItemDTO(
                         item.getId(),
                         item.getTitle(),
@@ -73,14 +81,15 @@ public class UserController {
                         item.getCondition(),
                         item.getPrice(),
                         user.getId(),
-                        item.isAvailable()// Include user ID in DTO
+                        item.isAvailable()
                 ))
-                .toList();
+                .toList());
+        response.put("totalItems", clothingItems.getTotalElements());
+        response.put("totalPages", clothingItems.getTotalPages());
+        response.put("currentPage", clothingItems.getNumber() + 1);
 
-        // Return the response
-        return ResponseEntity.ok(clothingItemDTOs);
+        return ResponseEntity.ok(response);
     }
-
 
 
     private UserDTO convertToDTO(User user) {
