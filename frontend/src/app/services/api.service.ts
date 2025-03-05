@@ -54,11 +54,16 @@ export class ApiService {
     );
   }
 
-  getMyClothingItems(userId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/users/${userId}/clothing-items`, { withCredentials: true }).pipe(
+  getPaginatedClothingItems(userId: number, page: number, pageSize: number): Observable<SearchResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.http.get<SearchResponse>(`${this.baseUrl}/users/${userId}/clothing-items`, { withCredentials: true, params }).pipe(
       catchError(this.handleAuthError)
     );
   }
+
 
   addClothingItem(item: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/clothing-items`, item, { withCredentials: true }).pipe(

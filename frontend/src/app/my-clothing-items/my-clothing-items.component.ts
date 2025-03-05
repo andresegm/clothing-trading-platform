@@ -39,21 +39,42 @@ export class MyClothingItemsComponent implements OnInit {
     });
   }
 
+  currentPage: number = 1;
+  totalPages: number = 1;
+  pageSize: number = 10;
 
-  fetchClothingItems(): void {
+
+  fetchClothingItems(page: number = 1): void {
     if (!this.currentUserId) {
       console.error("Cannot fetch items: User ID is null.");
       return;
     }
 
-    this.apiService.getMyClothingItems(this.currentUserId).subscribe({
-      next: (items) => {
-        this.clothingItems = items;
+    this.apiService.getPaginatedClothingItems(this.currentUserId, page, this.pageSize).subscribe({
+      next: (response) => {
+        console.log("Fetched clothing items:", response);
+        this.clothingItems = response.items;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.currentPage;
       },
       error: (error) => {
         console.error("Error fetching clothing items:", error);
       }
     });
+  }
+
+// Navigate to the previous page
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.fetchClothingItems(this.currentPage - 1);
+    }
+  }
+
+// Navigate to the next page
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.fetchClothingItems(this.currentPage + 1);
+    }
   }
 
   onAddItem(): void {

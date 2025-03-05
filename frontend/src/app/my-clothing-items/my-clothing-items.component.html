@@ -98,7 +98,7 @@
     </form>
   </section>
 
-  <!-- Existing Items -->
+  <!-- Existing Clothing Items List (With Pagination) -->
   <section class="clothing-items-list">
     <h2>Your Clothing Items</h2>
     <ul>
@@ -132,6 +132,13 @@
         </div>
       </li>
     </ul>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+      <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+      <span> Page {{ currentPage }} of {{ totalPages }} </span>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    </div>
   </section>
 </div>
 
