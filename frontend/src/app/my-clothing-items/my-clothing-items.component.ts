@@ -41,7 +41,7 @@ export class MyClothingItemsComponent implements OnInit {
 
   currentPage: number = 1;
   totalPages: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 9;
 
 
   fetchClothingItems(page: number = 1): void {
